@@ -15,29 +15,22 @@ struct DecodeError: Error, CustomStringConvertible { let description: String }
 ///
 /// Achievement data isn't validated when searching for bundles.
 func findBundles() throws(Playdate.Error) -> [String] {
-	let sharedDataDirectories = ["/Shared/", "/Shared/Achievements/"]
-	let achievementDataFileName = "achievements.json"
+	let sharedDataDirectory = "/Shared/Achievements/"
+	let achievementDataFileName = "Achievements.json"
 
-	var pathsWithData: [String] = []
+	let contents = try contentsOfDirectory(atPath: sharedDataDirectory)
 
-	for directory in sharedDataDirectories {
-		let contents = try? contentsOfDirectory(atPath: directory)
+	// TODO: Filter directories that aren't in a valid format (/[a-zA-Z0-9\-\.]+/)
 
-		guard let contents else { continue }
-		// TODO: Filter directories that aren't in a valid format (/[a-zA-Z0-9\-\.]+/)
-
-		let dataPaths = contents.map { id in directory + id }.filter { path in
-			fileExists(atPath: path + achievementDataFileName)
-		}
-
-		pathsWithData.append(contentsOf: dataPaths)
+	let pathsWithData = contents.filter { path in
+		fileExists(atPath: sharedDataDirectory + path + achievementDataFileName)
 	}
 
 	return pathsWithData
 }
 
 func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
-	let dataFilePath = path + "achievements.json"
+	let dataFilePath = "/Shared/Achievements/" + path + "Achievements.json"
 	guard let bundleFile = try? File.open(path: dataFilePath, mode: .read) else {
 		throw DecodeError(description: "Couldn't open file at \(dataFilePath)")
 	}
@@ -117,7 +110,9 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 			description: achievementContainer.description!,
 			isSecret: achievementContainer.isSecret ?? false, progress: achievementContainer.progress,
 			maxProgress: achievementContainer.maxProgress, unlockedAt: achievementContainer.unlockedAt,
-			iconPath: (achievementContainer.iconPath != nil) ? path + achievementContainer.iconPath! : nil
+			iconPath: (achievementContainer.iconPath != nil)
+				? "/Shared/Achievements/" + path + "AchievementImages/" + achievementContainer.iconPath!
+				: nil
 		)
 	}
 
@@ -134,11 +129,13 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 		id: bundleContainer.bundleId!, name: bundleContainer.name!,
 		description: bundleContainer.description!, author: bundleContainer.author!,
 		version: bundleContainer.version!,
-		cardPath: (bundleContainer.cardPath != nil) ? path + bundleContainer.cardPath! : nil,
-		iconPath: (bundleContainer.iconPath != nil) ? path + bundleContainer.iconPath! : nil,
+		cardPath: (bundleContainer.cardPath != nil)
+			? "/Shared/Achievements/" + path + bundleContainer.cardPath! : nil,
+		iconPath: (bundleContainer.iconPath != nil)
+			? "/Shared/Achievements/" + path + bundleContainer.iconPath! : nil,
 		achievements: achievements, modifiedAt: modifiedAt,
 		defaultIconPath: (bundleContainer.defaultIcon != nil)
-			? path + bundleContainer.defaultIcon! : nil)
+			? bundleContainer.defaultIcon! : nil)
 
 	return bundle
 }

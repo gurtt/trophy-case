@@ -31,7 +31,8 @@ final class BundleDetailView: Navigable {
 				level: .debug)
 		} else if achievementsWithIcons > 0, let defaultIconPath = bundle.defaultIconPath {
 			do {
-				defaultAchievementIcon = try Graphics.Bitmap(path: defaultIconPath)
+				defaultAchievementIcon = try Graphics.Bitmap(
+					path: "/Shared/Achievements/\(bundle.id)/AchievementImages/\(defaultIconPath)")
 				showIcons = true
 
 				Logger.log(
