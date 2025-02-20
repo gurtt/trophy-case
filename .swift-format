@@ -1,0 +1,12 @@
+{
+	"indentation": {
+        "tabs": 1
+    },
+    "tabWidth": 2,
+    "prioritizeKeepingFunctionOutputTogether": true,
+    "indentSwitchCaseLabels": true,
+    "rules": {
+		"BeginDocumentationCommentWithOneLineSummary": true,
+		"ValidateDocumentationComments": true
+	}
+}
