@@ -68,6 +68,9 @@ struct NavigationController {
 		}
 
 		for view in views { view.update() }
+
+		// TODO: This is temporary, but for the views we have now, the screen will always need an update.
+		Game.requestScreenUpdate()
 	}
 
 	func handleInputEvent(_ event: InputEvent) {
