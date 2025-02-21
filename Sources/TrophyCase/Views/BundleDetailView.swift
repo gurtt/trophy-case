@@ -339,8 +339,7 @@ final class BundleDetailView: Navigable {
 			if interval.seconds == 0 { return "just now" }
 			if !Game.preferences.showFullTime { return "\(interval.description) ago" }
 
-			let dt = System.convertEpochToDateTime(CUnsignedInt(achievement.unlockedAt!))
-			return "\(dt.year)-\(dt.month)-\(dt.day) \(dt.hour):\(dt.minute):\(dt.second)"
+			return System.DateTime(epoch: CUnsignedInt(achievement.unlockedAt!)).description
 		}()
 		let progressWidth = Float(
 			Graphics.Font.roobert10Bold.getTextWidth(for: progressText, tracking: 0))
