@@ -49,7 +49,15 @@ class TickerView {
 
 		Graphics.fillRect(viewBounds, color: .white)
 		defer {
-			Graphics.drawRect(viewBounds, color: .black)
+			Graphics.drawLine(
+				Line(
+					start: viewBounds.origin, end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: 0)
+				), lineWidth: 1, color: .black)
+			Graphics.drawLine(
+				Line(
+					start: viewBounds.origin.translatedBy(dx: 0, dy: viewBounds.height),
+					end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: viewBounds.height)),
+				lineWidth: 1, color: .black)
 		}
 
 		guard tickerItems.count > 0 else {
