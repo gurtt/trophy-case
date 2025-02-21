@@ -127,6 +127,11 @@ struct Analyser {
 		switch bundleProgressInterval {
 			case 0..<0.5:
 				let age = getSecondsSinceDetection(for: bundle.id)
+				if age < 0 {
+					Logger.log(
+						"Age is negative for bundle \"\(bundle.id)\". Did the time zone change recently?",
+						level: .debug)
+				}
 				let secondsInAWeek = 60 * 60 * 24 * 7
 				if age < secondsInAWeek {  // Achievement is less than a week old and may have some achievements unlocked
 					bundleAgeCandidates.append(AnalysisResult.bundleAge(bundleIndex: bundleIndex, age: age))
@@ -261,10 +266,8 @@ struct Analyser {
 	private func getSecondsSinceDetection(for bundleID: String) -> Int {
 		let path = "/DerivedData/BundleSighting/\(bundleID)"
 		if let stat = try? File.stat(path: path) {
-			let dateTime = System.DateTime(
-				year: UInt16(stat.m_year), month: UInt8(stat.m_month), day: UInt8(stat.m_day), weekday: 0,
-				hour: UInt8(stat.m_hour), minute: UInt8(stat.m_minute), second: UInt8(stat.m_second))
-			return Int(System.secondsSinceEpoch - System.convertDateTimeToEpoch(dateTime))
+			let dateTime = System.DateTime(fileStat: stat)
+			return Int(System.secondsSinceEpoch) - Int(System.convertDateTimeToEpoch(dateTime))
 		}
 		Logger.log("Bundle \"\(bundleID)\" is new for this launch", level: .debug)
 		try? touchFile(at: path)
