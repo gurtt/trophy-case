@@ -31,6 +31,10 @@ final class Game: PlaydateGame {
 
 	var playMusicMenuItem: System.CheckmarkMenuItem
 
+	var events: [InputEvent] = []
+	var scrollDownRepeat = KeyRepeat(callback: {})
+	var scrollUpRepeat = KeyRepeat(callback: {})
+
 	init() {
 		playMusicMenuItem = System.addCheckmarkMenuItem(
 			title: "music", isChecked: Game.preferences.playMusic,
@@ -41,6 +45,9 @@ final class Game: PlaydateGame {
 		Graphics.setFont(.roobert11Medium)
 
 		fallbackScene = FallbackScene()
+
+		scrollDownRepeat.endCallback = { [self] in events.append(.scrollDown) }
+		scrollUpRepeat.endCallback = { [self] in events.append(.scrollUp) }
 
 		#if DEBUG
 			System.setSerialMessageCallback(callback: serialMessageCallback)
@@ -95,7 +102,6 @@ final class Game: PlaydateGame {
 		Game.screenUpdateRequested = false
 
 		// MARK: Input events
-		var events: [InputEvent] = []
 
 		/// The amount, in degrees, the crank must turn to trigger a scroll event.
 		let crankDetentAngle: Float = 30
@@ -113,14 +119,32 @@ final class Game: PlaydateGame {
 
 		if System.buttonState.pushed.contains(.b) { events.append(.b) }
 
-		if System.buttonState.pushed.contains(.up) { events.append(.scrollUp) }
+		if System.buttonState.pushed.contains(.up) {
+			events.append(.scrollUp)
+			scrollUpRepeat.start()
+		}
 
-		if System.buttonState.pushed.contains(.down) { events.append(.scrollDown) }
-		// TODO: Key repeat scroll events for up and down buttons
+		if System.buttonState.pushed.contains(.down) {
+			events.append(.scrollDown)
+			scrollDownRepeat.start()
+		}
+
+		if System.buttonState.released.contains(.down) {
+			scrollDownRepeat.stop()
+		}
+
+		if System.buttonState.released.contains(.up) {
+			scrollUpRepeat.stop()
+		}
+
+		scrollUpRepeat.tick()
+		scrollDownRepeat.tick()
 
 		for event in events { Game.navigationController.handleInputEvent(event) }
 
 		Game.navigationController.update()
+
+		events = []
 
 		return Game.screenUpdateRequested
 	}
