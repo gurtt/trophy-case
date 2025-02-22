@@ -14,7 +14,7 @@ func loadPreferences() -> Preferences {
 	let fileIdentifier = "TCP"
 
 	guard let fileHandle = try? File.open(path: filePath, mode: .readData) else {
-		Logger.log("Can't open preferences file; using defaults", level: .error)
+		log("Can't open preferences file; using defaults")
 		return preferences
 	}
 	defer { try? fileHandle.close() }
@@ -26,7 +26,7 @@ func loadPreferences() -> Preferences {
 	defer { p.deallocate() }
 
 	do { _ = try fileHandle.read(buffer: p, length: 4) } catch {
-		Logger.log("Can't read identifier from preferences file: \(error.description)", level: .error)
+		log("Can't read identifier from preferences file: \(error.description)")
 		return preferences
 	}
 
@@ -35,9 +35,9 @@ func loadPreferences() -> Preferences {
 	let readFileIdentifier = String(cString: boundPointer)
 
 	guard readFileIdentifier == fileIdentifier else {
-		Logger.log(
-			"Preferences file identifier is invalid (expected \"\(fileIdentifier)\", got \"\(readFileIdentifier)\"",
-			level: .error)
+		log(
+			"Preferences file identifier is invalid (expected \"\(fileIdentifier)\", got \"\(readFileIdentifier)\""
+		)
 		return preferences
 	}
 
@@ -48,7 +48,7 @@ func loadPreferences() -> Preferences {
 	defer { viewModePref.deallocate() }
 
 	do { _ = try fileHandle.read(buffer: viewModePref, length: 1) } catch {
-		Logger.log("Can't read viewModePref from file: \(error.description)", level: .error)
+		log("Can't read viewModePref from file: \(error.description)")
 	}
 
 	let viewModePrefBoundPointer: UnsafeMutablePointer<UInt8> = viewModePref.bindMemory(
@@ -58,7 +58,7 @@ func loadPreferences() -> Preferences {
 	if 0 <= readViewModePref && readViewModePref < BundlesViewMode.allCases.count {
 		preferences.bundlesViewMode = BundlesViewMode.allCases[readViewModePref]
 	} else {
-		Logger.log("Invalid viewModePref value: \(readViewModePref)", level: .error)
+		log("Invalid viewModePref value: \(readViewModePref)")
 	}
 
 	// MARK: sortOrder
@@ -71,7 +71,7 @@ func loadPreferences() -> Preferences {
 		_ = try fileHandle.seek(to: 5, seek: .beginning)
 		_ = try fileHandle.read(buffer: sortOrderPref, length: 1)
 	} catch {
-		Logger.log("Couldn't read sortOrderPref from file: \(error.description)", level: .error)
+		log("Couldn't read sortOrderPref from file: \(error.description)")
 	}
 
 	let sortOrderPrefBoundPointer: UnsafeMutablePointer<UInt8> = sortOrderPref.bindMemory(
@@ -81,7 +81,7 @@ func loadPreferences() -> Preferences {
 	if 0 <= readSortOrderPref && readSortOrderPref < BundlesSortOrder.allCases.count {
 		preferences.bundlesSortOrder = BundlesSortOrder.allCases[readSortOrderPref]
 	} else {
-		Logger.log("Invalid sortOrderPref value: \(readSortOrderPref)", level: .error)
+		log("Invalid sortOrderPref value: \(readSortOrderPref)")
 	}
 
 	// MARK: showFullTime
@@ -94,7 +94,7 @@ func loadPreferences() -> Preferences {
 		_ = try fileHandle.seek(to: 6, seek: .beginning)
 		_ = try fileHandle.read(buffer: showFullTimePref, length: 1)
 	} catch {
-		Logger.log("Couldn't read showFullTimePref from file: \(error.description)", level: .error)
+		log("Couldn't read showFullTimePref from file: \(error.description)")
 	}
 
 	let showFullTimePrefBoundPointer: UnsafeMutablePointer<UInt8> = showFullTimePref.bindMemory(
@@ -110,8 +110,7 @@ func loadPreferences() -> Preferences {
 	defer { showHiddenAchievementsPref.deallocate() }
 
 	do { _ = try fileHandle.seek(to: 7, seek: .beginning) } catch {
-		Logger.log(
-			"Couldn't read showHiddenAchievementsPref from file: \(error.description)", level: .error)
+		log("Couldn't read showHiddenAchievementsPref from file: \(error.description)")
 	}
 
 	let showHiddenAchievementsPrefBoundPointer: UnsafeMutablePointer<UInt8> =
@@ -128,7 +127,7 @@ func savePreferences(_ preferences: Preferences) {
 	let fileIdentifier = "TCP"
 
 	guard let fileHandle = try? File.open(path: filePath, mode: .write) else {
-		Logger.log("Couldn't open in write mode", level: .error)
+		log("Couldn't open in write mode")
 		return
 	}
 	defer { try? fileHandle.close() }

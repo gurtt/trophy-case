@@ -38,18 +38,18 @@ enum PreferencesReader {
 
 	static func readPreferences() -> Preferences {
 		guard let fileHandle = try? File.open(path: preferencesFilePath, mode: .readData) else {
-			Logger.log("Can't open preferences file", level: .error)
+			log("Can't open preferences file")
 			return Preferences()
 		}
 		defer { try? fileHandle.close() }
 
 		guard let header = try? readHeader(from: fileHandle) else {
-			Logger.log("Can't read preferences file", level: .error)
+			log("Can't read preferences file")
 			return Preferences()
 		}
 
 		guard header.dataSectionSize == 1 else {
-			Logger.log("Preferences file has invalid size \(header.dataSectionSize)", level: .error)
+			log("Preferences file has invalid size \(header.dataSectionSize)")
 			return Preferences()
 		}
 
@@ -116,7 +116,7 @@ enum PreferencesReader {
 
 	static func writePreferences(_ preferences: Preferences) {
 		guard let fileHandle = try? File.open(path: preferencesFilePath, mode: .write) else {
-			Logger.log("Can't open preferences file", level: .error)
+			log("Can't open preferences file")
 			return
 		}
 		defer { try? fileHandle.close() }
@@ -128,7 +128,7 @@ enum PreferencesReader {
 		do {
 			try writeHeader(header, to: fileHandle)
 		} catch {
-			Logger.log("Can't write to preferences file", level: .error)
+			log("Can't write to preferences file")
 		}
 
 		// Write bundlesViewMode

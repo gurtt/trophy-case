@@ -26,35 +26,33 @@ final class BundleDetailView: Navigable {
 			defaultAchievementIcon = nil
 			showIcons = true
 
-			Logger.log(
-				"Showing achievement icons for bundle \"\(bundle.name)\" because all achievements have icons",
-				level: .debug)
+			log(
+				"Showing achievement icons for bundle \"\(bundle.name)\" because all achievements have icons"
+			)
 		} else if achievementsWithIcons > 0, let defaultIconPath = bundle.defaultIconPath {
 			do {
 				defaultAchievementIcon = try Graphics.Bitmap(
 					path: "/Shared/Achievements/\(bundle.id)/AchievementImages/\(defaultIconPath)")
 				showIcons = true
 
-				Logger.log(
-					"Showing achievement icons for bundle \"\(bundle.name)\" because some achievements have icons and a default icon was loaded",
-					level: .debug)
+				log(
+					"Showing achievement icons for bundle \"\(bundle.name)\" because some achievements have icons and a default icon was loaded"
+				)
 			} catch {
 				defaultAchievementIcon = nil
 				showIcons = false
-				Logger.log(
-					"Couldn't load default icon image at \"\(defaultIconPath)\": \(error)", level: .warning)
+				log("Couldn't load default icon image at \"\(defaultIconPath)\": \(error)")
 
-				Logger.log(
-					"Hiding achievement icons for bundle \"\(bundle.name)\" because some achievements have icons but an error occured while loading the default icon",
-					level: .debug)
+				log(
+					"Hiding achievement icons for bundle \"\(bundle.name)\" because some achievements have icons but an error occured while loading the default icon"
+				)
 			}
 		} else {
 			defaultAchievementIcon = nil
 			showIcons = false
 
-			Logger.log(
-				"Hiding achievement icons for bundle \"\(bundle.name)\" because no achievements have icons",
-				level: .debug)
+			log(
+				"Hiding achievement icons for bundle \"\(bundle.name)\" because no achievements have icons")
 		}
 
 		orderProxy = BundleDetailView.getOrderProxy(for: sortOrder, in: bundleIndex)
@@ -95,7 +93,7 @@ final class BundleDetailView: Navigable {
 
 	deinit {
 		// Check for reference cycles
-		Logger.log("Deinitialising instance", level: .trace)
+		log("Deinitialising instance")
 	}
 
 	// MARK: Internal
@@ -276,7 +274,7 @@ final class BundleDetailView: Navigable {
 			image.mask = bundleCardImageMask
 
 			return image
-		} catch { Logger.log("Couldn't load card image at \"\(path)\": \(error)", level: .warning) }
+		} catch { log("Couldn't load card image at \"\(path)\": \(error)") }
 
 		return nil
 	}
@@ -331,9 +329,9 @@ final class BundleDetailView: Navigable {
 
 			let interval = TimeInterval(spanning: Int(System.secondsSinceEpoch) - achievement.unlockedAt!)
 			guard interval.seconds >= 0 else {
-				Logger.log(
-					"Achievement \"\(achievement.id)\" has an unlock date in the future (in \(interval.description))",
-					level: .warning)
+				log(
+					"Achievement \"\(achievement.id)\" has an unlock date in the future (in \(interval.description))"
+				)
 				return "Unlocked"
 			}
 			if interval.seconds == 0 { return "just now" }
@@ -491,7 +489,7 @@ final class BundleDetailView: Navigable {
 			cache[i] = image
 			return image
 		} catch {
-			Logger.log("Couldn't load icon image at \"\(path)\": \(error)", level: .warning)
+			log("Couldn't load icon image at \"\(path)\": \(error)")
 
 			let c: Graphics.Bitmap? = nil
 			cache[i] = c

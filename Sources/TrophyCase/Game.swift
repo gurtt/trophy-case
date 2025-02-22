@@ -57,7 +57,7 @@ final class Game: PlaydateGame {
 			try File.mkdir(path: "DerivedData")
 			try File.mkdir(path: "DerivedData/BundleSighting")
 		} catch {
-			Logger.log("Cound't make directories for analyser: \(error)", level: .error)
+			log("Cound't make directories for analyser: \(error)")
 		}
 
 		var analyser = Analyser()
@@ -67,7 +67,7 @@ final class Game: PlaydateGame {
 			fallbackScene.variant = .broken
 			fallbackScene.identifier = "err_find_bundles"
 			fallbackScene.message = "Error while enumerating bundles."
-			Logger.log("Can't search for bundles: \(error)", level: .error)
+			log("Can't search for bundles: \(error)")
 			return
 		}
 
@@ -84,7 +84,7 @@ final class Game: PlaydateGame {
 
 				analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
 			} catch {
-				Logger.log("Can't decode bundle at \"\(path)\": \(error)", level: .error)
+				log("Can't decode bundle at \"\(path)\": \(error)")
 			}
 		}
 

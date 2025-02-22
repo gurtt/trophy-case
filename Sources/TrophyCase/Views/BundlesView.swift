@@ -232,7 +232,7 @@ final class BundlesView: Navigable {
 			cache[i] = image
 			return image
 		} catch {
-			Logger.log("Couldn't load card image at \"\(path)\": \(error)", level: .warning)
+			log("Couldn't load card image at \"\(path)\": \(error)")
 			let c: Graphics.Bitmap? = nil
 			cache[i] = c
 			return nil
@@ -247,7 +247,7 @@ final class BundlesView: Navigable {
 			cache[i] = image
 			return image
 		} catch {
-			Logger.log("Couldn't load icon image at \"\(path)\": \(error)", level: .warning)
+			log("Couldn't load icon image at \"\(path)\": \(error)")
 			let c: Graphics.Bitmap? = nil
 			cache[i] = c
 			return nil

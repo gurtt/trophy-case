@@ -52,39 +52,33 @@ struct Analyser {
 		_ bundle: borrowing Bundle, index bundleIndex: Int,
 		timeBase: Int = Int(System.secondsSinceEpoch)
 	) {
-		Logger.log("Ingesting bundle with ID \(bundle.id)", level: .debug)
+		log("Ingesting bundle with ID \(bundle.id)")
 		totalBundles += 1
 		var totalUnlocked: Int = 0
 		var lastUnlockAt: Int?
 		for (index, achievement) in bundle.achievements.enumerated() {
 			if achievement.isUnlocked {
 				totalUnlocked += 1
-				Logger.log(
-					"Achievement \"\(achievement.id)\" contributed to stat totalAchievementsUnlocked",
-					level: .debug)
+				log("Achievement \"\(achievement.id)\" contributed to stat totalAchievementsUnlocked")
 				lastUnlockAt = max(lastUnlockAt ?? 0, achievement.unlockedAt ?? 0)
 				let secondsSinceUnlock = timeBase - (achievement.unlockedAt ?? 0)
-				Logger.log(
-					"Achievement \"\(achievement.id)\" unlocked \(TimeInterval(spanning: secondsSinceUnlock)) \(secondsSinceUnlock > 0 ? "ago" : "in the future")",
-					level: .debug)
+				log(
+					"Achievement \"\(achievement.id)\" unlocked \(TimeInterval(spanning: secondsSinceUnlock)) \(secondsSinceUnlock > 0 ? "ago" : "in the future")"
+				)
 				switch secondsSinceUnlock {
 					case 0...86_400:
 						achievementsUnlockedToday += 1
-						Logger.log(
-							"Achievement \"\(achievement.id)\" contributed to stat achievementsUnlockedToday",
-							level: .debug)
+						log("Achievement \"\(achievement.id)\" contributed to stat achievementsUnlockedToday")
 						fallthrough
 					case 86_401...604_800:
 						achievementsUnlockedThisWeek += 1
-						Logger.log(
-							"Achievement \"\(achievement.id)\" contributed to stat achievementsUnlockedThisWeek",
-							level: .debug)
+						log(
+							"Achievement \"\(achievement.id)\" contributed to stat achievementsUnlockedThisWeek")
 						fallthrough
 					case 604_801...31_536_000:
 						achievementsUnlockedThisYear += 1
-						Logger.log(
-							"Achievement \"\(achievement.id)\" contributed to stat achievementsUnlockedThisYear",
-							level: .debug)
+						log(
+							"Achievement \"\(achievement.id)\" contributed to stat achievementsUnlockedThisYear")
 					default: break
 				}
 				if achievement.isSecret {
@@ -94,17 +88,13 @@ struct Analyser {
 					achievementSecretUnlockCandidates.append(
 						AnalysisResult.achievementSecretUnlock(
 							bundleIndex: index, achievementIndex: bundleIndex, secondsSince: secondsSinceUnlock))
-					Logger.log(
-						"Achievement \"\(achievement.id)\" qualified for achievementSecretUnlockCandidates",
-						level: .debug)
+					log("Achievement \"\(achievement.id)\" qualified for achievementSecretUnlockCandidates")
 				}
 				continue
 			}
 			if achievement.isSecret {
 				lockedSecretAchievements += 1
-				Logger.log(
-					"Achievement \"\(achievement.id)\" contributed to stat lockedSecretAchievements",
-					level: .debug)
+				log("Achievement \"\(achievement.id)\" contributed to stat lockedSecretAchievements")
 			} else {
 				guard let progress = achievement.progress, let maxProgress = achievement.maxProgress else {
 					continue
@@ -115,9 +105,8 @@ struct Analyser {
 							bundleIndex: bundleIndex, achievementIndex: index,
 							progressInterval: achievement.progressInterval
 						))
-					Logger.log(
-						"Achievement \"\(achievement.id)\" qualified for achievementProgressIntervalCandidates",
-						level: .debug)
+					log(
+						"Achievement \"\(achievement.id)\" qualified for achievementProgressIntervalCandidates")
 				}
 			}
 		}
@@ -128,21 +117,17 @@ struct Analyser {
 			case 0..<0.5:
 				let age = getSecondsSinceDetection(for: bundle.id)
 				if age < 0 {
-					Logger.log(
-						"Age is negative for bundle \"\(bundle.id)\". Did the time zone change recently?",
-						level: .debug)
+					log("Age is negative for bundle \"\(bundle.id)\". Did the time zone change recently?")
 				}
 				let secondsInAWeek = 60 * 60 * 24 * 7
 				if age < secondsInAWeek {  // Achievement is less than a week old and may have some achievements unlocked
 					bundleAgeCandidates.append(AnalysisResult.bundleAge(bundleIndex: bundleIndex, age: age))
-					Logger.log(
-						"Bundle \"\(bundle.id)\" qualified for bundleAgeCandidates (less than a week old)",
-						level: .debug)
+					log("Bundle \"\(bundle.id)\" qualified for bundleAgeCandidates (less than a week old)")
 				} else if age < secondsInAWeek * 4 && totalUnlocked == 0 {  // Achievement is between a week and a month old, but hasn't got any unlocked achievements yet
 					bundleAgeCandidates.append(AnalysisResult.bundleAge(bundleIndex: bundleIndex, age: age))
-					Logger.log(
-						"Bundle \"\(bundle.id)\" qualified for bundleAgeCandidates (less than 4 weeks old and 0 unlocked achievements)",
-						level: .debug)
+					log(
+						"Bundle \"\(bundle.id)\" qualified for bundleAgeCandidates (less than 4 weeks old and 0 unlocked achievements)"
+					)
 
 				}
 			case 0.5..<0.8:
@@ -151,17 +136,15 @@ struct Analyser {
 				bundleProgressIntervalCandidates.append(
 					AnalysisResult.bundleProgressInterval(
 						bundleIndex: bundleIndex, progressInterval: bundleProgressInterval))
-				Logger.log(
-					"Bundle \"\(bundle.id)\" qualified for bundleProgressIntervalCandidates", level: .debug)
+				log("Bundle \"\(bundle.id)\" qualified for bundleProgressIntervalCandidates")
 			case 1:
 				let secondsSinceLastUnlock = timeBase - (lastUnlockAt ?? 0)
 				bundleCompletionCandidates.append(
 					AnalysisResult.bundleCompletion(
 						bundleIndex: bundleIndex, secondsSince: secondsSinceLastUnlock))
-				Logger.log(
-					"Bundle \"\(bundle.id)\" qualified for bundleCompletionCandidates", level: .debug)
+				log("Bundle \"\(bundle.id)\" qualified for bundleCompletionCandidates")
 				perfectGames += 1
-				Logger.log("Bundle \"\(bundle.id)\" contributed to stat perfectGames", level: .debug)
+				log("Bundle \"\(bundle.id)\" contributed to stat perfectGames")
 			default:
 				break
 		}
@@ -175,7 +158,7 @@ struct Analyser {
 
 		// TODO: Perform a partial sort on these candidate lists and more efficiently take the first n of each
 
-		Logger.log(
+		log(
 			"""
 			Analysis:
 			\tachievementProgressIntervalCandidates: \(achievementProgressIntervalCandidates.count)
@@ -183,7 +166,7 @@ struct Analyser {
 			\tbundleProgressIntervalCandidates:      \(bundleProgressIntervalCandidates.count)
 			\tbundleCompletionCandidates:            \(bundleCompletionCandidates.count)
 			\tbundleAgeCandidates:                   \(bundleAgeCandidates.count)
-			""", level: .debug)
+			""")
 
 		let a = achievementProgressIntervalCandidates.sorted(by: { $0.score > $1.score }).prefix(
 			maximumCandidatesPerType)
@@ -229,7 +212,7 @@ struct Analyser {
 				DisplayStatistic(title: "LOCKED SECRETS", body: "\(lockedSecretAchievements)"))
 		}
 
-		Logger.log(
+		log(
 			"""
 			Statistics:
 			\ttotalAchievementsUnlocked:    \(totalAchievementsUnlocked)
@@ -240,7 +223,7 @@ struct Analyser {
 			\tachievementsUnlockedThisYear: \(achievementsUnlockedThisYear)
 			\tperfectGames:                 \(perfectGames)
 			\tlockedSecretAchievements:     \(lockedSecretAchievements)
-			""", level: .debug)
+			""")
 
 		return (totalAchievementsUnlocked, displayStatistics)
 	}
@@ -269,7 +252,7 @@ struct Analyser {
 			let dateTime = System.DateTime(fileStat: stat)
 			return Int(System.secondsSinceEpoch) - Int(System.convertDateTimeToEpoch(dateTime))
 		}
-		Logger.log("Bundle \"\(bundleID)\" is new for this launch", level: .debug)
+		log("Bundle \"\(bundleID)\" is new for this launch")
 		try? touchFile(at: path)
 
 		return 0

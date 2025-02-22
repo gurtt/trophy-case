@@ -48,7 +48,7 @@ struct NavigationController {
 	/// Removes the frontmost view from the stack and starts a transition in reverse.
 	mutating func pop() {
 		guard views.count > 1 else {
-			Logger.log("Cannot remove the root view of a NavigationController", level: .debug)
+			log("Cannot remove the root view of a NavigationController")
 			return
 		}
 

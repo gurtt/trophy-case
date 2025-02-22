@@ -99,7 +99,7 @@ func shouldDecodeTableValueForKey(
 		}
 	}
 
-	Logger.log("Unsupported \"\(key)\" at \"\(path)\"", level: .info)
+	log("Unsupported \"\(key)\" at \"\(path)\"")
 
 	return 0
 }
@@ -155,7 +155,7 @@ func didDecodeTableValue(
 			case "defaultIcon":
 				guard valueType == .string else { return }
 				container.defaultIcon = decodeJsonStringValue(from: rawValue)
-			default: Logger.log("Unexpected \"\(key)\" in bundle", level: .info)
+			default: log("Unexpected \"\(key)\" in bundle")
 		}
 	}
 
@@ -182,9 +182,7 @@ func didDecodeTableValue(
 				currentAchievement.maxProgress = decodeJsonIntValue(from: rawValue)
 			case "grantedAt":
 				guard valueType != .false else {
-					Logger.log(
-						"Incorrect type for key \"grantedAt\": should be omitted if not granted, not false",
-						level: .warning)
+					log("Incorrect type for key \"grantedAt\": should be omitted if not granted, not false")
 					return
 				}
 				guard valueType == .integer else { return }
@@ -192,7 +190,7 @@ func didDecodeTableValue(
 			case "iconPath":
 				guard valueType == .string else { return }
 				currentAchievement.iconPath = decodeJsonStringValue(from: rawValue)
-			default: Logger.log("Unexpected \"\(key)\" in achievement", level: .info)
+			default: log("Unexpected \"\(key)\" in achievement")
 		}
 	}
 }
@@ -202,5 +200,5 @@ func decodeError(
 	lineNumber: Int32
 ) {
 	let error = String(cString: errorPointer!)
-	Logger.log("Can't decode JSON: \(error) at line \(lineNumber)", level: .error)
+	log("Can't decode JSON: \(error) at line \(lineNumber)")
 }

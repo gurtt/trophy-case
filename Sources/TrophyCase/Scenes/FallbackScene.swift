@@ -42,7 +42,7 @@ final class FallbackScene: Scene {
 
 	static func loadImage(for variant: Variant) -> Graphics.Bitmap {
 		do { return try Graphics.Bitmap(path: variant.rawValue) } catch {
-			Logger.log("Can't load fallback scene image: \(error)", level: .error)
+			log("Can't load fallback scene image: \(error)")
 			return Graphics.Bitmap(width: 64, height: 64, bgColor: .white)
 		}
 	}
