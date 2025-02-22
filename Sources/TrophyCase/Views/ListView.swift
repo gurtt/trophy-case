@@ -33,6 +33,9 @@ struct ListView {
 	var scrollTimer: Timer = Timer(duration: 250, easing: .outQuad)
 
 	mutating func draw(in viewBounds: Rect) {
+        Graphics.pushClipRect(viewBounds)
+        defer { Graphics.popClipRect() }
+        
 		Graphics.drawMode = .copy
 
 		if let backgroundImage {

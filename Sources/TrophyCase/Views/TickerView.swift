@@ -40,25 +40,11 @@ class TickerView {
 	// MARK: Internal
 
 	func draw(in viewBounds: Rect) {
-		Graphics.setClipRect(viewBounds)
-		defer {
-			Graphics.clearClipRect()
-		}
+		Graphics.pushClipRect(viewBounds)
 
 		Graphics.drawMode = .copy
 
 		Graphics.fillRect(viewBounds, color: .white)
-		defer {
-			Graphics.drawLine(
-				Line(
-					start: viewBounds.origin, end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: 0)
-				), lineWidth: 1, color: .black)
-			Graphics.drawLine(
-				Line(
-					start: viewBounds.origin.translatedBy(dx: 0, dy: viewBounds.height),
-					end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: viewBounds.height)),
-				lineWidth: 1, color: .black)
-		}
 
 		guard tickerItems.count > 0 else {
 			return
@@ -101,6 +87,18 @@ class TickerView {
 				indexCursor += 1
 			}
 		}
+        
+        Graphics.popClipRect()
+        
+        Graphics.drawLine(
+            Line(
+                start: viewBounds.origin, end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: 0)
+            ), lineWidth: 1, color: .black)
+        Graphics.drawLine(
+            Line(
+                start: viewBounds.origin.translatedBy(dx: 0, dy: viewBounds.height),
+                end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: viewBounds.height)),
+            lineWidth: 1, color: .black)
 	}
 
 	// MARK: Private

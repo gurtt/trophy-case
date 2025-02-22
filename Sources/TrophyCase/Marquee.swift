@@ -23,8 +23,8 @@ struct Marquee {
     // MARK: Internal
     
     static func draw(_ text: String, in bounds: Rect, offset: Float = 0, inverted: Bool = false) {
-        Graphics.setClipRect(bounds)
-        defer { Graphics.clearClipRect() }
+        Graphics.pushClipRect(bounds)
+        defer { Graphics.popClipRect() }
         
         let textWidth = Graphics.Font.roobert11Bold.getTextWidth(for: text, tracking: 0)
         Graphics.drawMode = inverted ? .fillWhite : .copy

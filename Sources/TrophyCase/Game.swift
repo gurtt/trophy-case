@@ -99,6 +99,7 @@ final class Game: PlaydateGame {
 	}
 
 	func update() -> Bool {
+        Graphics.clearClipRects()
 		Game.screenUpdateRequested = false
 
 		// MARK: Input events

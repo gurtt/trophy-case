@@ -135,12 +135,12 @@ final class BundleDetailView: Navigable {
 				from: transitionStartRect, to: transitionEndRect, using: transitionAnimationController.value
 			) : transitionEndRect
 		Graphics.pushClipRect(transitionRect)
+        defer { Graphics.popClipRect() }
 		if transitionAnimationController.isAnimating {
 			Graphics.fillRect(transitionRect, color: .black)
 		}
 		defer {
 			if transitionAnimationController.isAnimating {
-				Graphics.popClipRect()
 				let radius = lerp(from: 6, to: 0, using: transitionAnimationController.value)
 				Graphics.drawRoundRect(transitionRect, lineWidth: 3, radius: radius)
 			}
@@ -400,6 +400,7 @@ final class BundleDetailView: Navigable {
 
 		// Draw description
 		Graphics.setFont(.roobert11Medium)
+        Graphics.drawMode = .copy
 		let descriptionBounds = Rect(
 			x: bounds.origin.x + 6, y: bounds.origin.y + (showIcons ? 42 : 33), width: bounds.width - 12,
 			height: 44)
