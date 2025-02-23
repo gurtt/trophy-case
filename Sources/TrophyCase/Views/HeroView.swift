@@ -32,7 +32,9 @@ class HeroView {
 		Graphics.drawBitmap(backgroundImage, at: viewBounds.origin)
 
 		// Draw spinning trophy
-		// TODO: Draw animated spinning trophy
+		Graphics.drawBitmap(
+			trophyImageTable[Int(trophyAnimationController.value)] ?? trophyImageTable[0]!,
+			at: viewBounds.origin.translatedBy(dx: 17, dy: 34))
 
 		// Draw total unlocked
 		let totalUnlockedTextWidth = Float(
@@ -113,12 +115,13 @@ class HeroView {
 		// Update timers
 		revolvingStatisticsAnimationController.tick()
 		statisticsTransitionAnimationController.tick()
+		trophyAnimationController.tick()
 	}
 
 	// MARK: Private
 
-	private let backgroundImage = try! Graphics.Bitmap(path: "hero-bg")
-	private let trophyImageTable = try! Graphics.BitmapTable(path: "trophy/trophy")
+	private let backgroundImage = try! Graphics.Bitmap(path: "hero-bg-trophy")
+	private let trophyImageTable = try! Graphics.BitmapTable(path: "trophy-handles/trophy-handles")
 
 	private var totalAchievementsUnlocked: Int = 0
 	private let statistics: [DisplayStatistic]
@@ -147,4 +150,7 @@ class HeroView {
 			return currentStatisticIndex - 1
 		}
 	}
+
+	private var trophyAnimationController = AnimationController(
+		startValue: 1, endValue: 60, duration: 2000, isRepeating: true)
 }
