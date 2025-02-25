@@ -27,6 +27,13 @@ class HeroView {
 	}
 
 	func draw(in viewBounds: Rect) {
+		defer {
+			// Update timers
+			revolvingStatisticsAnimationController.tick()
+			statisticsTransitionAnimationController.tick()
+			trophyAnimationController.tick()
+		}
+
 		// Draw background image
 		Graphics.drawMode = .copy
 		Graphics.drawBitmap(backgroundImage, at: viewBounds.origin)
@@ -50,6 +57,7 @@ class HeroView {
 			at: viewBounds.origin.translatedBy(dx: 386 - totalUnlockedTextWidth, dy: 33))
 
 		// Draw revolving statistics
+		guard !statistics.isEmpty else { return }
 		let statistic = statistics[currentStatisticIndex]
 
 		let statisticTitleTextWidth = Float(
@@ -111,11 +119,6 @@ class HeroView {
 					dy: statisticBodyDrawY + Float(Graphics.Font.showtime.height)))
 			Graphics.clearClipRect()
 		}
-
-		// Update timers
-		revolvingStatisticsAnimationController.tick()
-		statisticsTransitionAnimationController.tick()
-		trophyAnimationController.tick()
 	}
 
 	// MARK: Private
