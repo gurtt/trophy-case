@@ -1,6 +1,6 @@
 name=Trophy Case
 author=gurtt
-buildNumber=15
-version=0.15.0
+buildNumber=16
+version=0.16.0
 description=View and share your achievements
 bundleID=dev.gurtt.trophycase
