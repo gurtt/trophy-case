@@ -112,8 +112,11 @@ final class BundleDetailView: Navigable {
 			timeDisplayPostAnimationController.tick()
 		}
 		// Update button hold timers
-		// TODO: Only do this if the selected item is showing a date
-		if System.buttonState.pushed.contains(.a) {
+		let selectedAchievementIsUnlocked =
+			listView.selectedItemIndex != nil
+			? Game.bundles[bundleIndex].achievements[orderProxy, listView.selectedItemIndex!].isUnlocked
+			: false
+		if System.buttonState.pushed.contains(.a) && selectedAchievementIsUnlocked {
 			timeDisplayPreAnimationController.animate(to: .end)
 		}
 		if System.buttonState.released.contains(.a) {
@@ -340,8 +343,8 @@ final class BundleDetailView: Navigable {
 		let progressWidth = Float(
 			Graphics.Font.roobert10Bold.getTextWidth(for: progressText, tracking: 0))
 		Graphics.setFont(.roobert10Bold)
-		if timeDisplayPreAnimationController.isAnimating
-			|| timeDisplayPostAnimationController.isAnimating
+		if (timeDisplayPreAnimationController.isAnimating
+			|| timeDisplayPostAnimationController.isAnimating) && isSelected
 		{
 			let image = Graphics.Bitmap(
 				width: Int(progressWidth), height: Graphics.Font.roobert10Bold.height)
