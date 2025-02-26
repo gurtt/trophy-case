@@ -11,26 +11,23 @@ class TickerView {
 	// MARK: Lifecycle
 
 	init(results: [AnalysisResult]) {
-		self.results = results
+		self.results =
+			results.isEmpty
+			? [.text(text: "Achievements are staying steady. Try playing some games!")] : results
 		lastTime = Int(System.currentTimeMilliseconds)
 
-		// TODO: Add something interesting if there's zero items
-		guard results.count > 0 else { return }
-		// TODO: Don't just render all of these because that might be massive. Instead render items as-needed when they enter the view
 		for result in results {
 			tickerItems.append(renderItem(result, small: isSmall))
 		}
-
 	}
 
 	// MARK: Public
 
-	// TODO: Add a didSet to trigger re-rendering all of these (or detect it in the draw call?)
 	public var isSmall: Bool = false {
 		didSet {
-			guard results.count > 0 else { return }
+			guard !results.isEmpty else { return }
+
 			tickerItems = []
-			// TODO: Don't just render all of these because that might be massive. Instead render items as-needed when they enter the view
 			for result in results {
 				tickerItems.append(renderItem(result, small: isSmall))
 			}
@@ -41,14 +38,11 @@ class TickerView {
 
 	func draw(in viewBounds: Rect) {
 		Graphics.pushClipRect(viewBounds)
-
 		Graphics.drawMode = .copy
 
 		Graphics.fillRect(viewBounds, color: .white)
 
-		guard tickerItems.count > 0 else {
-			return
-		}
+		guard !tickerItems.isEmpty else { return }
 
 		// Draw ticker items
 		let currentTime = Int(System.currentTimeMilliseconds)
@@ -87,18 +81,18 @@ class TickerView {
 				indexCursor += 1
 			}
 		}
-        
-        Graphics.popClipRect()
-        
-        Graphics.drawLine(
-            Line(
-                start: viewBounds.origin, end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: 0)
-            ), lineWidth: 1, color: .black)
-        Graphics.drawLine(
-            Line(
-                start: viewBounds.origin.translatedBy(dx: 0, dy: viewBounds.height),
-                end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: viewBounds.height)),
-            lineWidth: 1, color: .black)
+
+		Graphics.popClipRect()
+
+		Graphics.drawLine(
+			Line(
+				start: viewBounds.origin, end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: 0)
+			), lineWidth: 1, color: .black)
+		Graphics.drawLine(
+			Line(
+				start: viewBounds.origin.translatedBy(dx: 0, dy: viewBounds.height),
+				end: viewBounds.origin.translatedBy(dx: viewBounds.width, dy: viewBounds.height)),
+			lineWidth: 1, color: .black)
 	}
 
 	// MARK: Private
@@ -121,7 +115,7 @@ class TickerView {
 		let icon = small ? nil : getIcon(for: result)
 
 		let bitmapWidth = textWidth + ((icon != nil) ? 32 + 8 : 0)
-		var bitmap = Graphics.Bitmap(width: bitmapWidth, height: small ? 15 : 36, bgColor: .white)
+		let bitmap = Graphics.Bitmap(width: bitmapWidth, height: small ? 15 : 36, bgColor: .white)
 
 		Graphics.pushContext(bitmap)
 		defer { Graphics.popContext() }
@@ -147,9 +141,9 @@ class TickerView {
 				return "Secret: \"\(achievementName)\" from \(bundleName) unlocked \(timeInterval) ago"
 
 			case .bundleProgressInterval(let bundleIndex, _):
-				let bundleName = Game.bundles[bundleIndex].name
-				let lockedAchievementsCount = 0  // TODO: Actually calculate this or change the verbiage
-				return "\(bundleName): \(lockedAchievementsCount) left to unlock"
+				let bundle = Game.bundles[bundleIndex]
+				let lockedAchievementsCount = bundle.achievements.count(where: { !$0.isUnlocked })
+				return "\(bundle.name): \(lockedAchievementsCount) left to unlock"
 
 			case .bundleCompletion(let bundleIndex, let secondsSince):
 				return
@@ -157,6 +151,9 @@ class TickerView {
 
 			case .bundleAge(let bundleIndex, _):
 				return "New game: \(Game.bundles[bundleIndex].name)"
+
+			case .text(let text):
+				return text
 		}
 	}
 
@@ -176,20 +173,23 @@ class TickerView {
 		}
 
 		switch result {
-			case .achievementProgressInterval(let bundleIndex, let achievementIndex, let progressInterval):
+			case .achievementProgressInterval(_, _, _):
 				return nil  // TODO: Load the achievement icon, or default, etc.
 
-			case .achievementSecretUnlock(let bundleIndex, let achievementIndex, let secondsSince):
+			case .achievementSecretUnlock(_, _, _):
 				return nil  // TODO: Load the achievement icon, or default, etc.
 
-			case .bundleProgressInterval(let bundleIndex, let progressInterval):
+			case .bundleProgressInterval(let bundleIndex, _):
 				return getBundleIcon(for: bundleIndex)
 
-			case .bundleCompletion(let bundleIndex, let secondsSince):
+			case .bundleCompletion(let bundleIndex, _):
 				return getBundleIcon(for: bundleIndex)
 
-			case .bundleAge(let bundleIndex, let age):
+			case .bundleAge(let bundleIndex, _):
 				return getBundleIcon(for: bundleIndex)
+
+			case .text(_):
+				return nil
 		}
 	}
 }
