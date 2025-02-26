@@ -470,20 +470,24 @@ final class BundleDetailView: Navigable {
 		let bundle = Game.bundles[bi]
 		let displayedAchievements =
 			Game.preferences.showHiddenAchievements
-			? bundle.achievements : bundle.achievements.filter({ !$0.isSecret || $0.isUnlocked })
+			? Array(bundle.achievements.enumerated())
+			: bundle.achievements.enumerated().filter({ !$0.element.isSecret || $0.element.isUnlocked })
 
-		switch order { case .original: return Array(0...displayedAchievements.count - 1) case .recent:
-			return displayedAchievements.enumerated().sorted(by: {
-				let timestampA = $0.element.unlockedAt ?? 0
-				let timestampB = $1.element.unlockedAt ?? 0
-				return timestampB < timestampA
-			}).map({ $0.offset })
+		switch order {
+			case .original:
+				return displayedAchievements.map({ return $0.offset })
+			case .recent:
+				return displayedAchievements.sorted(by: {
+					let timestampA = $0.element.unlockedAt ?? 0
+					let timestampB = $1.element.unlockedAt ?? 0
+					return timestampB < timestampA
+				}).map({ $0.offset })
 			case .progress:
-				return displayedAchievements.enumerated().sorted(by: {
+				return displayedAchievements.sorted(by: {
 					return $0.element.progressInterval > $1.element.progressInterval
 				}).map({ $0.offset })
 			case .alphabetical:
-				return displayedAchievements.enumerated().sorted(by: {
+				return displayedAchievements.sorted(by: {
 					return $0.element.name < $1.element.name
 				}).map({ $0.offset })
 		}
