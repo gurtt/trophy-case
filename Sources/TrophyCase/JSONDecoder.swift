@@ -80,7 +80,7 @@ func shouldDecodeTableValueForKey(
 		"achievements", "defaultIcon",
 	]
 	let achievementKeys: Set = [
-		"id", "name", "description", "isSecret", "progress", "progressMax", "grantedAt", "iconPath",
+		"id", "name", "description", "isSecret", "progress", "progressMax", "grantedAt", "icon",
 	]
 	let decoder = decoderPointer!.pointee
 	let key = String(cString: keyPointer!)
@@ -187,7 +187,7 @@ func didDecodeTableValue(
 				}
 				guard valueType == .integer else { return }
 				currentAchievement.unlockedAt = decodeJsonIntValue(from: rawValue)
-			case "iconPath":
+			case "icon":
 				guard valueType == .string else { return }
 				currentAchievement.iconPath = decodeJsonStringValue(from: rawValue)
 			default: log("Unexpected \"\(key)\" in achievement")
