@@ -87,7 +87,7 @@ struct Analyser {
 					}
 					achievementSecretUnlockCandidates.append(
 						AnalysisResult.achievementSecretUnlock(
-							bundleIndex: index, achievementIndex: bundleIndex, secondsSince: secondsSinceUnlock))
+							bundleIndex: bundleIndex, achievementIndex: index, secondsSince: secondsSinceUnlock))
 					log("Achievement \"\(achievement.id)\" qualified for achievementSecretUnlockCandidates")
 				}
 				continue
