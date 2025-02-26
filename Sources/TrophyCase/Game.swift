@@ -62,6 +62,8 @@ final class Game: PlaydateGame {
 
 		var analyser = Analyser()
 
+		LaunchInfo.setup()
+
 		var pathsWithData: [String] = []
 		do { pathsWithData = try findBundles() } catch {
 			fallbackScene.variant = .broken
