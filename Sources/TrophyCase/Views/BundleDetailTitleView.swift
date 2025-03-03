@@ -22,12 +22,17 @@ struct BundleDetailTitleView {
 	// MARK: Internal
 
 	func draw(in bounds: Rect) {
-		Graphics.drawMode = .inverted
+		let nameRect = Rect(
+			x: bounds.origin.x + 14, y: bounds.origin.y + 6,
+			width: bounds.width - 14 - 14 - 6 - summaryWidth,
+			height: Float(Graphics.Font.roobert11Medium.height))
+
 		Graphics.fillRect(bounds, color: .black)
 
 		Graphics.setFont(.roobert11Medium)
-		Graphics.drawText(bundleName, at: bounds.origin.translatedBy(dx: 14, dy: 6))
+		Marquee.draw(bundleName, in: nameRect, inverted: true)
 
+		Graphics.drawMode = .inverted
 		Graphics.setFont(.roobert11Bold)
 		Graphics.drawText(
 			summaryText, at: bounds.origin.translatedBy(dx: bounds.width - summaryWidth - 14, dy: 6))

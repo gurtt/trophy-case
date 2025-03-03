@@ -176,10 +176,14 @@ final class BundlesView: Navigable {
 		let summaryText = "\(unlocked)/\(total)"
 		let summaryWidth = Float(
 			Graphics.Font.roobert11Bold.getTextWidth(for: summaryText, tracking: 0))
+		let nameRect = Rect(
+			x: bounds.origin.x + 4, y: bounds.origin.y + 96,
+			width: bounds.width - 4 - 4 - 6 - summaryWidth,
+			height: Float(Graphics.Font.roobert11Medium.height))
+
 		if isSelected {
 			selectedItemBounds = bounds
 			if isCurrent && showFocusRing {
-				// TODO: Flashing focus ring
 				Graphics.drawRoundRect(bounds, lineWidth: 8, radius: 6, color: .black)
 			}
 		}
@@ -188,10 +192,11 @@ final class BundlesView: Navigable {
 			Graphics.drawMode = .copy
 			Graphics.drawBitmap(image, at: bounds.origin)
 		}
-		Graphics.drawMode = .inverted
+
 		Graphics.setFont(.roobert11Medium)
-		Graphics.drawText(bundle.name, at: bounds.origin.translatedBy(dx: 4, dy: 96))
+		Marquee.draw(bundle.name, in: nameRect, inverted: true)
 		Graphics.setFont(.roobert11Bold)
+		Graphics.drawMode = .nxor
 		Graphics.drawText(
 			summaryText, at: Point(x: bounds.x + bounds.width - 4 - summaryWidth, y: bounds.y + 96))
 	}
@@ -202,6 +207,10 @@ final class BundlesView: Navigable {
 		let summaryText = "\(unlocked)/\(total)"
 		let summaryWidth = Float(
 			Graphics.Font.roobert11Bold.getTextWidth(for: summaryText, tracking: 0))
+		let nameRect = Rect(
+			x: bounds.origin.x + 40, y: bounds.origin.y + 6,
+			width: bounds.width - 40 - 10 - 6 - summaryWidth,
+			height: Float(Graphics.Font.roobert11Medium.height))
 		Graphics.drawMode = .copy
 		if bundle.iconPath != nil, let image = getBundleIconImage(i: forItem, path: bundle.iconPath!) {
 			Graphics.drawBitmap(image, at: bounds.origin)
@@ -217,8 +226,9 @@ final class BundlesView: Navigable {
 		}
 		Graphics.drawMode = .nxor
 		Graphics.setFont(.roobert11Medium)
-		Graphics.drawText(bundle.name, at: bounds.origin.translatedBy(dx: 40, dy: 6))
+		Marquee.draw(bundle.name, in: nameRect, inverted: isSelected)
 		Graphics.setFont(.roobert11Bold)
+		Graphics.drawMode = .nxor
 		Graphics.drawText(
 			summaryText, at: Point(x: bounds.x + bounds.width - 10 - summaryWidth, y: bounds.y + 6))
 	}
