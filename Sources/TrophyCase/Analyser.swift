@@ -13,6 +13,7 @@ enum AnalysisResult {
 	case bundleProgressInterval(bundleIndex: Int, progressInterval: Float)
 	case bundleCompletion(bundleIndex: Int, secondsSince: Int)
 	case bundleAge(bundleIndex: Int, age: Int)
+	case text(text: String)
 }
 
 extension AnalysisResult: Comparable {
@@ -29,6 +30,8 @@ extension AnalysisResult: Comparable {
 				Float(secondsSince)
 			case .bundleAge(_, let age):
 				Float(age)
+			case .text:
+				0
 		}
 	}
 
