@@ -77,6 +77,7 @@ final class BundleDetailView: Navigable {
 			itemHorizontalSpacing: 8, itemVerticalSpacing: 10,
 			backgroundImage: try! Graphics.Bitmap(path: "list-bg"))
 		listView.drawItem = drawListItem
+		listView.selectedItemIndex = 0
 
 		heroViewAnimationController.skip(to: .start)
 		timeDisplayPreAnimationController.skip(to: .start)
@@ -111,11 +112,16 @@ final class BundleDetailView: Navigable {
 			timeDisplayPreAnimationController.tick()
 			timeDisplayPostAnimationController.tick()
 		}
+
 		// Update button hold timers
-		let selectedAchievementIsUnlocked =
-			listView.selectedItemIndex != nil
-			? Game.bundles[bundleIndex].achievements[orderProxy, listView.selectedItemIndex!].isUnlocked
-			: false
+		let selectedAchievementIsUnlocked = { [self] in
+			if hiddenAchievementsCount > 0 && listView.selectedItemIndex! == listView.totalItems - 1 {
+				return false
+			}
+
+			return Game.bundles[bundleIndex].achievements[orderProxy, listView.selectedItemIndex!]
+				.isUnlocked
+		}()
 		if System.buttonState.pushed.contains(.a) && selectedAchievementIsUnlocked {
 			timeDisplayPreAnimationController.animate(to: .end)
 		}
@@ -208,33 +214,33 @@ final class BundleDetailView: Navigable {
 
 	func handleInputEvent(_ event: InputEvent) {
 		switch event {
-            case .scrollUp:
-                if listView.selectedItemIndex != nil {  // in the list
-                    if listView.selectedItemIndex! > 1 {  // not at the top
-                        listView.selectedItemIndex! -= 1
-                        listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
-                    } else {  // at the top
-                        heroViewAnimationController.animate(to: .start)
-                        listView.selectedItemIndex = nil
-                    }
-                    
-                } else {
-                    // TODO: Overscroll upwards
-                }
-                currentItemMarquee = nil
-			case .scrollDown:
-				if listView.selectedItemIndex != nil {  // in the list
-					listView.selectedItemIndex! += 1
-					listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
-				} else {  // in the hero
-					heroViewAnimationController.animate(to: .end)
-					listView.selectedItemIndex = 1
+			case .scrollUp:
+				if listView.selectedItemIndex == 1 {
+					heroViewAnimationController.animate(to: .start)
 				}
-                currentItemMarquee = nil
+				listView.selectedItemIndex! -= 1
+				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
+
+				if listView.selectedItemIndex! > 0 {
+					currentItemMarquee = nil
+				}
+
+			case .scrollDown:
+				if listView.selectedItemIndex == 0 {
+					heroViewAnimationController.animate(to: .end)
+				}
+				listView.selectedItemIndex! += 1
+				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
+
+				if listView.selectedItemIndex! < listView.totalItems - 1 {
+					currentItemMarquee = nil
+				}
+
 			case .b:
-                Game.navigationController.pop()
+				Game.navigationController.pop()
+
 			default:
-                break
+				break
 		}
 	}
 
