@@ -95,7 +95,7 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 		achievementContainer throws(DecodeError) in
 		guard
 			achievementContainer.id != nil && achievementContainer.name != nil
-				&& achievementContainer.description != nil
+				&& achievementContainer.unlockedDescription != nil
 			// && achievementContainer.isSecret != nil
 			// && achievementContainer.progress != nil
 			// && achievementContainer.maxProgress != nil
@@ -107,7 +107,8 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 
 		return Achievement(
 			id: achievementContainer.id!, name: achievementContainer.name!,
-			description: achievementContainer.description!,
+			lockedDescription: achievementContainer.lockedDescription,
+			unlockedDescription: achievementContainer.unlockedDescription!,
 			isSecret: achievementContainer.isSecret ?? false, progress: achievementContainer.progress,
 			maxProgress: achievementContainer.maxProgress, unlockedAt: achievementContainer.unlockedAt,
 			iconPath: (achievementContainer.iconPath != nil)

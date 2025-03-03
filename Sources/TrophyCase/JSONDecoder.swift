@@ -50,7 +50,8 @@ func decodeJsonStringValue(from value: JSON.Value) -> String {
 class AchievementContainer {
 	var id: String?
 	var name: String?
-	var description: String?
+	var lockedDescription: String?
+	var unlockedDescription: String?
 	var isSecret: Bool?
 	var progress: Int?
 	var maxProgress: Int?
@@ -80,7 +81,8 @@ func shouldDecodeTableValueForKey(
 		"achievements", "defaultIcon",
 	]
 	let achievementKeys: Set = [
-		"id", "name", "description", "isSecret", "progress", "progressMax", "grantedAt", "icon",
+		"id", "name", "description", "descriptionLocked", "isSecret", "progress", "progressMax",
+		"grantedAt", "icon",
 	]
 	let decoder = decoderPointer!.pointee
 	let key = String(cString: keyPointer!)
@@ -162,15 +164,19 @@ func didDecodeTableValue(
 	if path.utf8.hasPrefix("achievements[") {  // decoded achievement field
 		let currentAchievement = container.achievements.last!
 
-		switch key.utf8 { case "id":
-			guard valueType == .string else { return }
-			currentAchievement.id = decodeJsonStringValue(from: rawValue)
+		switch key.utf8 {
+			case "id":
+				guard valueType == .string else { return }
+				currentAchievement.id = decodeJsonStringValue(from: rawValue)
 			case "name":
 				guard valueType == .string else { return }
 				currentAchievement.name = decodeJsonStringValue(from: rawValue)
 			case "description":
 				guard valueType == .string else { return }
-				currentAchievement.description = decodeJsonStringValue(from: rawValue)
+				currentAchievement.unlockedDescription = decodeJsonStringValue(from: rawValue)
+			case "descriptionLocked":
+				guard valueType == .string else { return }
+				currentAchievement.lockedDescription = decodeJsonStringValue(from: rawValue)
 			case "isSecret":
 				guard valueType == .true || valueType == .false else { return }
 				currentAchievement.isSecret = decodeJsonBoolValue(from: rawValue)

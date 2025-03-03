@@ -8,7 +8,8 @@
 struct Achievement: Identifiable {
 	let id: String
 	let name: String
-	let description: String
+	let lockedDescription: String?
+	let unlockedDescription: String
 	let isSecret: Bool
 	let progress: Int?
 	let maxProgress: Int?
@@ -16,9 +17,10 @@ struct Achievement: Identifiable {
 	let iconPath: String?
 
 	var isUnlocked: Bool {
-		if unlockedAt != nil { return true }
+		if let unlockedAt { return true }
 
-		if maxProgress != nil && progress ?? 0 >= maxProgress! { return true }
+		guard let maxProgress else { return false }
+		if progress ?? 0 >= maxProgress { return true }
 
 		return false
 	}
@@ -29,5 +31,13 @@ struct Achievement: Identifiable {
 		if let maxProgress, let progress { return Float(progress) / Float(maxProgress) }
 
 		return 0
+	}
+
+	var description: String {
+		if !self.isUnlocked, let lockedDescription {
+			return lockedDescription
+		}
+
+		return unlockedDescription
 	}
 }
