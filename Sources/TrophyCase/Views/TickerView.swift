@@ -131,8 +131,9 @@ class TickerView {
 		switch result {
 			case .achievementProgressInterval(let bundleIndex, let achievementIndex, _):
 				let bundleName = Game.bundles[bundleIndex].name
-				let achievementName = Game.bundles[bundleIndex].achievements[achievementIndex].name
-				return "\"\(achievementName)\" from \(bundleName): z/a"  // TODO: Actually calculate achievement thing
+				let achievement = Game.bundles[bundleIndex].achievements[achievementIndex]
+				return
+					"\"\(achievement.name)\" from \(bundleName): \(achievement.progress!)/\(achievement.maxProgress!)"
 
 			case .achievementSecretUnlock(let bundleIndex, let achievementIndex, let secondsSince):
 				let bundleName = Game.bundles[bundleIndex].name
