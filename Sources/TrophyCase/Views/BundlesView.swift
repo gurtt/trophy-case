@@ -15,7 +15,6 @@ final class BundlesView: Navigable {
 		focusRingAnimationController = AnimationController(startValue: 0, endValue: 0, duration: 0)
 		listView = ListView(drawItem: { (_, _, _) in }, totalItems: Game.bundles.count, itemHeight: 0)
 		tickerView = TickerView(results: Game.analysisResults)
-		//        tickerView = TickerView(results: [])
 		orderProxy = BundlesView.getOrderProxy(for: Game.preferences.bundlesSortOrder)
 		setupListView(for: Game.preferences.bundlesViewMode)
 		heroViewAnimationController.skip(to: .start)
@@ -104,32 +103,37 @@ final class BundlesView: Navigable {
 		listView.drawItem = { (_, _, _) in }
 	}
 	func handleInputEvent(_ event: InputEvent) {
-		switch event { case .scrollUp:
-			if listView.selectedItemIndex != nil {  // in the list
-				if listView.selectedItemIndex! > 0 {  // not at the top
-					listView.selectedItemIndex! -= 1
-					listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
-				} else {  // at the top
-					heroViewAnimationController.animate(to: .start)
+		switch event {
+			case .scrollUp:
+				guard listView.selectedItemIndex != nil else { break }
+
+				guard listView.selectedItemIndex! > 0 else {
 					listView.selectedItemIndex = nil
+					heroViewAnimationController.animate(to: .start)
+					break
 				}
-			} else {
-				// TODO: Overscroll upwards
-			}
+
+				listView.selectedItemIndex! -= 1
+				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
+
 			case .scrollDown:
-				if listView.selectedItemIndex != nil {  // in the list
-					listView.selectedItemIndex! += 1
-					listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
-				} else {  // in the hero
-					heroViewAnimationController.animate(to: .end)
+				guard listView.selectedItemIndex != nil else {
 					listView.selectedItemIndex = 0
+					heroViewAnimationController.animate(to: .end)
+					break
 				}
+
+				listView.selectedItemIndex! += 1
+				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
+
 			case .a:
 				guard let index = listView.selectedItemIndex, let selectedItemBounds else { break }
 				let originalBundleIndex = orderProxy[index]
 				Game.navigationController.push(
 					BundleDetailView(for: originalBundleIndex, from: selectedItemBounds))
-			default: break
+
+			default:
+				break
 		}
 	}
 	// MARK: Private
