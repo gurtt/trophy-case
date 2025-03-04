@@ -13,16 +13,38 @@ class HeroView {
 
 	// MARK: Lifecycle
 
-	init(totalAchievementsUnlocked: Int, statistics: [DisplayStatistic]) {
+	init(totalAchievementsUnlocked: UInt, statistics: [DisplayStatistic]) {
 		self.totalAchievementsUnlocked = totalAchievementsUnlocked
 		self.statistics = statistics
+
+		self.previousTotalAchievementsUnlocked = StatsReader.read() ?? totalAchievementsUnlocked
+		self.totalUnlockedDisplay = previousTotalAchievementsUnlocked
+		StatsReader.write(self.totalAchievementsUnlocked)
+		let delta = self.totalAchievementsUnlocked - self.previousTotalAchievementsUnlocked
+		log("Total unlock delta: \(delta)")
+
+		totalUnlockedDisplayInitialDelay.endCallback = {
+			let delta = self.totalAchievementsUnlocked - self.previousTotalAchievementsUnlocked
+
+			if delta > 0 {
+				self.totalUnlockedAnimationController = AnimationController(
+					startValue: 0, endValue: 1, duration: delta > 30 ? 25 : 200, isRepeating: true,
+					endCallback: self.incrementTotalUnlockedDisplay)
+				self.totalUnlockedSizeAnimationController = AnimationController(
+					startValue: 0, endValue: 1, duration: delta > 30 ? (25 * 30) : 200 * Int(delta),
+					easing: .outExpo)
+			}
+			if delta < 4 {
+				self.totalUnlockedSizeAnimationController.skip(to: .start)
+			}
+		}
 
 		revolvingStatisticsAnimationController.endCallback = switchToNextStatistic
 	}
 
 	// MARK: Internal
 
-	func setTotalAchievementsUnlocked(to number: Int) {
+	func setTotalAchievementsUnlocked(to number: UInt) {
 		totalAchievementsUnlocked = number
 	}
 
@@ -32,6 +54,9 @@ class HeroView {
 			revolvingStatisticsAnimationController.tick()
 			statisticsTransitionAnimationController.tick()
 			trophyAnimationController.tick()
+			totalUnlockedAnimationController?.tick()
+			totalUnlockedSizeAnimationController.tick()
+			totalUnlockedDisplayInitialDelay.tick()
 		}
 
 		// Draw background image
@@ -44,39 +69,53 @@ class HeroView {
 			at: viewBounds.origin.translatedBy(dx: 17, dy: 34))
 
 		// Draw total unlocked
-		let totalUnlockedTextWidth = Float(
-			Graphics.Font.showtime.getTextWidth(for: totalAchievementsUnlocked.description, tracking: 0))
-
 		// TODO: Draw these relative to the view bounds
 		Graphics.setFont(.roobert10Bold)
 		Graphics.drawMode = .inverted
-		Graphics.drawText("TOTAL UNLOCKED", at: viewBounds.origin.translatedBy(dx: 386 - 117, dy: 18))  // 117px wide
+		Graphics.drawText("TOTAL UNLOCKED", at: viewBounds.origin.translatedBy(dx: 386 - 117, dy: 33))  // 117px wide
+
+		let totalUnlockedTextWidth = Float(
+			Graphics.Font.showtime.getTextWidth(for: String(totalUnlockedDisplay), tracking: 0))
+		let image = Graphics.Bitmap(
+			width: Int(totalUnlockedTextWidth), height: Graphics.Font.showtime.height)
+		Graphics.pushContext(image)
+		Graphics.drawMode = .inverted
 		Graphics.setFont(.showtime)
-		Graphics.drawText(
-			totalAchievementsUnlocked.description,
-			at: viewBounds.origin.translatedBy(dx: 386 - totalUnlockedTextWidth, dy: 33))
+		Graphics.drawText(String(totalUnlockedDisplay), at: .zero)
+		Graphics.popContext()
+
+		let totalUnlockedPosition = viewBounds.origin.translatedBy(dx: 386, dy: 48)
+		let scale = lerp(from: 1, to: 1.7, using: totalUnlockedSizeAnimationController.value)
+		Graphics.drawMode = .copy
+		Graphics.drawBitmap(
+			image, at: totalUnlockedPosition, degrees: 0, center: Point(x: 1, y: 0), xScale: scale,
+			yScale: scale)
 
 		// Draw revolving statistics
 		guard !statistics.isEmpty else { return }
 		let statistic = statistics[currentStatisticIndex]
 
+		let offset = lerp(from: 0, to: 15, using: totalUnlockedSizeAnimationController.value)
+
 		let statisticTitleTextWidth = Float(
 			Graphics.Font.roobert10Bold.getTextWidth(for: statistic.title, tracking: 0))
-		let statisticTitleDrawY = lerp(
-			from: Float(85 - Graphics.Font.roobert10Bold.height), to: 85,
-			using: statisticsTransitionAnimationController.value)
+		let statisticTitleDrawY =
+			lerp(
+				from: Float(100 - Graphics.Font.roobert10Bold.height), to: 100,
+				using: statisticsTransitionAnimationController.value) + offset
 		// TODO: Make this rectangle smaller so that it minimises the updated area
 		let statisticTitleClipRect = Rect(
-			x: 0, y: viewBounds.origin.y + 85, width: 400,
+			x: 0, y: viewBounds.origin.y + 100 + offset, width: 400,
 			height: Float(Graphics.Font.roobert10Bold.height))
 		let statisticBodyTextWidth = Float(
 			Graphics.Font.showtime.getTextWidth(for: statistic.body, tracking: 0))
-		let statisticBodyDrawY = lerp(
-			from: Float(100 - Graphics.Font.showtime.height), to: 100,
-			using: statisticsTransitionAnimationController.value)
+		let statisticBodyDrawY =
+			lerp(
+				from: Float(115 - Graphics.Font.showtime.height), to: 115,
+				using: statisticsTransitionAnimationController.value) + offset
 		// TODO: Make this rectangle smaller so that it minimises the updated area
 		let statisticBodyClipRect = Rect(
-			x: viewBounds.origin.x, y: viewBounds.origin.y + 100, width: 400,
+			x: viewBounds.origin.x, y: viewBounds.origin.y + 115 + offset, width: 400,
 			height: Float(Graphics.Font.showtime.height))
 
 		Graphics.setFont(.roobert10Bold)
@@ -126,8 +165,9 @@ class HeroView {
 	private let backgroundImage = try! Graphics.Bitmap(path: "hero-bg-trophy")
 	private let trophyImageTable = try! Graphics.BitmapTable(path: "trophy-handles/trophy-handles")
 
-	private var totalAchievementsUnlocked: Int = 0
+	private var totalAchievementsUnlocked: UInt = 0
 	private let statistics: [DisplayStatistic]
+	private let previousTotalAchievementsUnlocked: UInt
 
 	private var revolvingStatisticsAnimationController = AnimationController(
 		startValue: 0, endValue: 1, duration: 7000, isRepeating: true)
@@ -156,4 +196,32 @@ class HeroView {
 
 	private var trophyAnimationController = AnimationController(
 		startValue: 1, endValue: 60, duration: 2000, isRepeating: true)
+
+	private func incrementTotalUnlockedDisplay() {
+		guard
+			totalUnlockedDisplay < totalAchievementsUnlocked - 1 && totalUnlockedDisplayIterations <= 30
+		else {
+			totalUnlockedAnimationController = nil
+			totalUnlockedDisplay = totalAchievementsUnlocked
+
+			let delta = totalAchievementsUnlocked - self.previousTotalAchievementsUnlocked
+			if delta >= 4 {
+				self.totalUnlockedSizeAnimationController = AnimationController(
+					startValue: 1, endValue: 0, duration: 250, easing: .outBack)
+			}
+
+			return
+		}
+
+		totalUnlockedDisplayIterations += 1
+		totalUnlockedDisplay += 1
+	}
+
+	private var totalUnlockedAnimationController: AnimationController?
+	private var totalUnlockedSizeAnimationController = AnimationController(
+		startValue: 0, endValue: 0, duration: 0)
+	private var totalUnlockedDisplay: UInt
+	private var totalUnlockedDisplayIterations: UInt = 0
+	private var totalUnlockedDisplayInitialDelay = AnimationController(
+		startValue: 0, endValue: 1, duration: 1000)
 }

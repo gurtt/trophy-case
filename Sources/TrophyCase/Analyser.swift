@@ -57,7 +57,7 @@ struct Analyser {
 	) {
 		log("Ingesting bundle with ID \(bundle.id)")
 		totalBundles += 1
-		var totalUnlocked: Int = 0
+		var totalUnlocked: UInt = 0
 		var lastUnlockAt: Int?
 		for (index, achievement) in bundle.achievements.enumerated() {
 			if achievement.isUnlocked {
@@ -186,7 +186,7 @@ struct Analyser {
 
 	func getStatistics(
 		timeBase: Int = Int(System.secondsSinceEpoch)
-	) -> (total: Int, stats: [DisplayStatistic]) {
+	) -> (total: UInt, stats: [DisplayStatistic]) {
 		var displayStatistics: [DisplayStatistic] = []
 
 		let avgCompletion = Int((averageCompletionIntervalRunningTotal / Float(totalBundles)) * 100)
@@ -240,7 +240,7 @@ struct Analyser {
 	private var bundleAgeCandidates: [AnalysisResult] = []
 
 	// Statistics
-	private var totalAchievementsUnlocked: Int = 0
+	private var totalAchievementsUnlocked: UInt = 0
 	private var totalBundles: Int = 0
 	private var averageCompletionIntervalRunningTotal: Float = 0
 	private var achievementsUnlockedToday: Int = 0

@@ -21,7 +21,7 @@ final class Game: PlaydateGame {
 	static nonisolated(unsafe) var bundles: [Bundle] = []
 	static nonisolated(unsafe) var analysisResults: [AnalysisResult] = []
 	static nonisolated(unsafe) var statistics: [DisplayStatistic] = []
-	static nonisolated(unsafe) var totalAchievementsUnlocked: Int = 0
+	static nonisolated(unsafe) var totalAchievementsUnlocked: UInt = 0
 
 	var isDrilledDown: Bool = false
 
