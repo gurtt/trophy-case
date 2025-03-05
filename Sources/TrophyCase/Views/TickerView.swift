@@ -173,12 +173,26 @@ class TickerView {
 			}
 		}
 
-		switch result {
-			case .achievementProgressInterval(_, _, _):
-				return nil  // TODO: Load the achievement icon, or default, etc.
+		func getAchievementIcon(bundle: Array.Index, achievement: Array.Index) -> Graphics.Bitmap? {
+			guard let iconPath = Game.bundles[bundle].achievements[achievement].iconPath else {
+				return nil
+			}
+			do {
+				let image = Graphics.Bitmap(width: 32, height: 32)
+				try image.load(from: iconPath)
 
-			case .achievementSecretUnlock(_, _, _):
-				return nil  // TODO: Load the achievement icon, or default, etc.
+				return image
+			} catch {
+				return nil
+			}
+		}
+
+		switch result {
+			case .achievementProgressInterval(let bundleIndex, let achievementIndex, _):
+				return getAchievementIcon(bundle: bundleIndex, achievement: achievementIndex)
+
+			case .achievementSecretUnlock(let bundleIndex, let achievementIndex, _):
+				return getAchievementIcon(bundle: bundleIndex, achievement: achievementIndex)
 
 			case .bundleProgressInterval(let bundleIndex, _):
 				return getBundleIcon(for: bundleIndex)
