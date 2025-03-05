@@ -14,10 +14,11 @@ struct Achievement: Identifiable {
 	let progress: Int?
 	let maxProgress: Int?
 	let unlockedAt: Int?
-	let iconPath: String?
+	let lockedIconPath: String?
+	let unlockedIconPath: String?
 
 	var isUnlocked: Bool {
-		if let unlockedAt { return true }
+		if unlockedAt != nil { return true }
 
 		guard let maxProgress else { return false }
 		if progress ?? 0 >= maxProgress { return true }
@@ -39,5 +40,9 @@ struct Achievement: Identifiable {
 		}
 
 		return unlockedDescription
+	}
+
+	var iconPath: String? {
+		self.isUnlocked ? unlockedIconPath : lockedIconPath
 	}
 }

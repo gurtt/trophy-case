@@ -111,8 +111,13 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 			unlockedDescription: achievementContainer.unlockedDescription!,
 			isSecret: achievementContainer.isSecret ?? false, progress: achievementContainer.progress,
 			maxProgress: achievementContainer.maxProgress, unlockedAt: achievementContainer.unlockedAt,
-			iconPath: (achievementContainer.iconPath != nil)
-				? "/Shared/Achievements/" + path + "AchievementImages/" + achievementContainer.iconPath!
+			lockedIconPath: (achievementContainer.lockedIconPath != nil)
+				? "/Shared/Achievements/" + path + "AchievementImages/" + achievementContainer
+					.lockedIconPath!
+				: nil,
+			unlockedIconPath: (achievementContainer.unlockedIconPath != nil)
+				? "/Shared/Achievements/" + path + "AchievementImages/" + achievementContainer
+					.unlockedIconPath!
 				: nil
 		)
 	}

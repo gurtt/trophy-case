@@ -56,7 +56,8 @@ class AchievementContainer {
 	var progress: Int?
 	var maxProgress: Int?
 	var unlockedAt: Int?
-	var iconPath: String?
+	var lockedIconPath: String?
+	var unlockedIconPath: String?
 }
 
 /// A container holding unformatted data for an Bundle, represented as a class container that can be passed to C.
@@ -82,7 +83,7 @@ func shouldDecodeTableValueForKey(
 	]
 	let achievementKeys: Set = [
 		"id", "name", "description", "descriptionLocked", "isSecret", "progress", "progressMax",
-		"grantedAt", "icon",
+		"grantedAt", "icon", "iconLocked",
 	]
 	let decoder = decoderPointer!.pointee
 	let key = String(cString: keyPointer!)
@@ -195,7 +196,10 @@ func didDecodeTableValue(
 				currentAchievement.unlockedAt = decodeJsonIntValue(from: rawValue)
 			case "icon":
 				guard valueType == .string else { return }
-				currentAchievement.iconPath = decodeJsonStringValue(from: rawValue)
+				currentAchievement.unlockedIconPath = decodeJsonStringValue(from: rawValue)
+			case "iconLocked":
+				guard valueType == .string else { return }
+				currentAchievement.lockedIconPath = decodeJsonStringValue(from: rawValue)
 			default: log("Unexpected \"\(key)\" in achievement")
 		}
 	}
