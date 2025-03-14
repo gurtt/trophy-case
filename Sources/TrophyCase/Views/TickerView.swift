@@ -42,7 +42,10 @@ class TickerView {
 
 		Graphics.fillRect(viewBounds, color: .white)
 
-		guard !tickerItems.isEmpty else { return }
+		guard !tickerItems.isEmpty else {
+			Graphics.popClipRect()
+			return
+		}
 
 		// Draw ticker items
 		let currentTime = Int(System.currentTimeMilliseconds)
