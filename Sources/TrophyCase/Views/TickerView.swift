@@ -16,7 +16,7 @@ class TickerView {
 			? [.text(text: "Achievements are staying steady. Try playing some games!")] : results
 		lastTime = Int(System.currentTimeMilliseconds)
 
-		for result in results {
+		for result in self.results {
 			tickerItems.append(renderItem(result, small: isSmall))
 		}
 	}
