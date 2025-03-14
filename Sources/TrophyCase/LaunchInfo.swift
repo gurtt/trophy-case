@@ -9,7 +9,7 @@ import PlaydateKit
 
 enum LaunchInfo {
 	// MARK: Internal
-	
+
 	/// Generate launch info, if it's not already present.
 	static func setup() {
 		log("Doing setup!")

@@ -144,7 +144,7 @@ final class BundleDetailView: Navigable {
 				from: transitionStartRect, to: transitionEndRect, using: transitionAnimationController.value
 			) : transitionEndRect
 		Graphics.pushClipRect(transitionRect)
-        defer { Graphics.popClipRect() }
+		defer { Graphics.popClipRect() }
 		if transitionAnimationController.isAnimating {
 			Graphics.fillRect(transitionRect, color: .black)
 		}
@@ -218,23 +218,25 @@ final class BundleDetailView: Navigable {
 				if listView.selectedItemIndex == 1 {
 					heroViewAnimationController.animate(to: .start)
 				}
-				listView.selectedItemIndex! -= 1
-				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
 
 				if listView.selectedItemIndex! > 0 {
 					currentItemMarquee = nil
 				}
 
+				listView.selectedItemIndex! -= 1
+				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
+
 			case .scrollDown:
 				if listView.selectedItemIndex == 0 {
 					heroViewAnimationController.animate(to: .end)
 				}
-				listView.selectedItemIndex! += 1
-				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
 
 				if listView.selectedItemIndex! < listView.totalItems - 1 {
 					currentItemMarquee = nil
 				}
+
+				listView.selectedItemIndex! += 1
+				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
 
 			case .b:
 				Game.navigationController.pop()
@@ -273,8 +275,8 @@ final class BundleDetailView: Navigable {
 	private let defaultAchievementIcon: Graphics.Bitmap?
 
 	private var sortOrderMenuItem: System.OptionsMenuItem? = nil
-    
-    private var currentItemMarquee: Marquee?
+
+	private var currentItemMarquee: Marquee?
 
 	/// Load and mask a bundle card image.
 	/// - Parameter path: The path to the image.
@@ -381,27 +383,33 @@ final class BundleDetailView: Navigable {
 				}
 			let progressPosition = Point(
 				x: 0 + bounds.width - 6,
-                y: bounds.origin.y + (showIcons ? 11 : 6) + 4 + Float(Graphics.Font.roobert10Bold.height / 2))
+				y: bounds.origin.y + (showIcons ? 11 : 6) + 4
+					+ Float(Graphics.Font.roobert10Bold.height / 2))
 			Graphics.drawBitmap(
 				image, at: progressPosition, degrees: 0, center: Point(x: 1, y: 0.5), xScale: xScale,
 				yScale: yScale)
 		} else {
 			Graphics.drawText(
-                progressText, at: Point(x: bounds.width - 6 - progressWidth, y: bounds.origin.y + 4 + (showIcons ? 11 : 6)))
+				progressText,
+				at: Point(
+					x: bounds.width - 6 - progressWidth, y: bounds.origin.y + 4 + (showIcons ? 11 : 6)))
 		}
-        
-        // Draw achievement name
-        Graphics.setFont(.roobert11Bold)
-        let nameBounds = Rect(origin: bounds.origin.translatedBy(dx: 6 + (showIcons ? 36 : 0), dy: showIcons ? 11 : 6), width: bounds.width - progressWidth - 12 - 12 - (showIcons ? 36 : 0), height: Float(Graphics.Font.roobert11Bold.height))
-        if isSelected {
-            if currentItemMarquee == nil {
-                currentItemMarquee = Marquee(achievement.name)
-            }
-            
-            currentItemMarquee?.update(in: nameBounds)
-        } else {
-            Marquee.draw(achievement.name, in: nameBounds)
-        }
+
+		// Draw achievement name
+		Graphics.setFont(.roobert11Bold)
+		let nameBounds = Rect(
+			origin: bounds.origin.translatedBy(dx: 6 + (showIcons ? 36 : 0), dy: showIcons ? 11 : 6),
+			width: bounds.width - progressWidth - 12 - 12 - (showIcons ? 36 : 0),
+			height: Float(Graphics.Font.roobert11Bold.height))
+		if isSelected {
+			if currentItemMarquee == nil {
+				currentItemMarquee = Marquee(achievement.name)
+			}
+
+			currentItemMarquee?.update(in: nameBounds)
+		} else {
+			Marquee.draw(achievement.name, in: nameBounds)
+		}
 
 		// TODO: Switch between showFullTime with bouncy effect if the current achievement is unlocked and has a date
 		// TODO: Refactor all of this (bigly). Maybe make it a separate view thing?
@@ -409,7 +417,7 @@ final class BundleDetailView: Navigable {
 
 		// Draw description
 		Graphics.setFont(.roobert11Medium)
-        Graphics.drawMode = .copy
+		Graphics.drawMode = .copy
 		let descriptionBounds = Rect(
 			x: bounds.origin.x + 6, y: bounds.origin.y + (showIcons ? 42 : 33), width: bounds.width - 12,
 			height: 44)
@@ -417,7 +425,7 @@ final class BundleDetailView: Navigable {
 
 		// Draw progress bar
 		let progressBarY: Float = bounds.origin.y + (showIcons ? 36 : 31)
-        let progressBarStartX: Float = bounds.origin.x + 6 + (showIcons ? 36 : 0)
+		let progressBarStartX: Float = bounds.origin.x + 6 + (showIcons ? 36 : 0)
 		let progressBarEndX: Float = bounds.origin.x + bounds.width - 6
 
 		let progressBarStart = Point(x: progressBarStartX, y: progressBarY)

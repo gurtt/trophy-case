@@ -51,12 +51,12 @@ struct Marquee {
 	mutating func update(in bounds: Rect) {
 		defer { Marquee.draw(text, in: bounds, offset: scrollTimer.value, inverted: inverted) }
 
-        guard textWidth > Int(bounds.width) else {
-            scrollTimer.skip(to: .start)
-            dwellStartTime = System.currentTimeMilliseconds + UInt32(Marquee.dwellTime)
-            return
-        }
-        
+		guard textWidth > Int(bounds.width) else {
+			scrollTimer.skip(to: .start)
+			dwellStartTime = System.currentTimeMilliseconds + UInt32(Marquee.dwellTime)
+			return
+		}
+
 		guard System.currentTimeMilliseconds >= dwellStartTime else { return }
 		scrollTimer.animate(to: .end)
 		defer { scrollTimer.tick() }
