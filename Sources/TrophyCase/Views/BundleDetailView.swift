@@ -138,11 +138,12 @@ final class BundleDetailView: Navigable {
 		// Clip drawing and draw outline if transitioning
 		let transitionEndRect = Rect(
 			x: 0, y: 15, width: Float(Display.width), height: Float(Display.height - 15))
-		let transitionRect =
+		var transitionRect =
 			transitionAnimationController.isAnimating
 			? lerp(
 				from: transitionStartRect, to: transitionEndRect, using: transitionAnimationController.value
 			) : transitionEndRect
+		transitionRect.y = max(transitionRect.y, transitionEndRect.y)
 		Graphics.pushClipRect(transitionRect)
 		defer { Graphics.popClipRect() }
 		if transitionAnimationController.isAnimating {
