@@ -4,3 +4,4 @@ buildNumber=19
 version=0.18.0
 description=View and share your achievements
 bundleID=dev.gurtt.trophycase
+imagePath=LauncherAssets
