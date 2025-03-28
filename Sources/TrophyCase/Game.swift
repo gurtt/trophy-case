@@ -31,6 +31,11 @@ final class Game: PlaydateGame {
 		defaultIconPath: nil  // TODO: Calculate this
 	)
 
+	static nonisolated(unsafe) let scrollDownSfx = Sound.SamplePlayer()
+	static nonisolated(unsafe) let scrollUpSfx = Sound.SamplePlayer()
+	static nonisolated(unsafe) let actionSfx = Sound.SamplePlayer()
+	static nonisolated(unsafe) let denialSfx = Sound.SamplePlayer()
+
 	static nonisolated(unsafe) var bundles: [Bundle] {
 		Game.saveData.hasPlayed ? [brickBreakBundle] + sharedBundles : sharedBundles
 	}
@@ -50,6 +55,11 @@ final class Game: PlaydateGame {
 	var scrollUpRepeat = KeyRepeat(callback: {})
 
 	init() {
+		Game.scrollDownSfx.setSample(path: "SystemSfx/select")
+		Game.scrollUpSfx.setSample(path: "SystemSfx/select-reverse")
+		Game.actionSfx.setSample(path: "SystemSfx/action")
+		Game.denialSfx.setSample(path: "SystemSfx/denial")
+
 		playMusicMenuItem = System.addCheckmarkMenuItem(
 			title: "music", isChecked: Game.preferences.playMusic,
 			callback: { isChecked in

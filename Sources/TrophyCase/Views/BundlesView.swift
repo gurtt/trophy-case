@@ -107,7 +107,12 @@ final class BundlesView: Navigable {
 	func handleInputEvent(_ event: InputEvent) {
 		switch event {
 			case .scrollUp:
-				guard listView.selectedItemIndex != nil else { break }
+				guard listView.selectedItemIndex != nil else {
+					Game.denialSfx.play()
+					break
+				}
+
+				Game.scrollUpSfx.play()
 
 				guard listView.selectedItemIndex! > 0 else {
 					listView.selectedItemIndex = nil
@@ -122,9 +127,16 @@ final class BundlesView: Navigable {
 				guard listView.selectedItemIndex != nil else {
 					listView.selectedItemIndex = 0
 					heroViewAnimationController.animate(to: .end)
+					Game.scrollDownSfx.play()
 					break
 				}
 
+				guard listView.selectedItemIndex! < listView.totalItems - 1 else {
+					Game.denialSfx.play()
+					break
+				}
+
+				Game.scrollDownSfx.play()
 				listView.selectedItemIndex! += 1
 				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
 
@@ -133,6 +145,7 @@ final class BundlesView: Navigable {
 				let originalBundleIndex = orderProxy[index]
 				Game.navigationController.push(
 					BundleDetailView(for: originalBundleIndex, from: selectedItemBounds))
+				Game.actionSfx.play()
 
 			default:
 				break

@@ -217,6 +217,7 @@ final class BundleDetailView: Navigable {
 		switch event {
 			case .scrollUp:
 				if listView.selectedItemIndex == 1 {
+					Game.scrollUpSfx.play()
 					heroViewAnimationController.animate(to: .start)
 				}
 
@@ -224,11 +225,18 @@ final class BundleDetailView: Navigable {
 					currentItemMarquee = nil
 				}
 
+				if listView.selectedItemIndex == 0 {
+					Game.denialSfx.play()
+				} else {
+					Game.scrollUpSfx.play()
+				}
+
 				listView.selectedItemIndex! -= 1
 				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
 
 			case .scrollDown:
 				if listView.selectedItemIndex == 0 {
+					Game.scrollDownSfx.play()
 					heroViewAnimationController.animate(to: .end)
 				}
 
@@ -236,10 +244,17 @@ final class BundleDetailView: Navigable {
 					currentItemMarquee = nil
 				}
 
+				if listView.selectedItemIndex == listView.totalItems - 1 {
+					Game.denialSfx.play()
+				} else {
+					Game.scrollDownSfx.play()
+				}
+
 				listView.selectedItemIndex! += 1
 				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
 
 			case .b:
+				Game.scrollUpSfx.play()
 				Game.navigationController.pop()
 
 			default:
