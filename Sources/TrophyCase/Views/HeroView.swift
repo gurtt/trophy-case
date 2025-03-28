@@ -14,12 +14,13 @@ class HeroView {
 	// MARK: Lifecycle
 
 	init(totalAchievementsUnlocked: UInt, statistics: [DisplayStatistic]) {
-		self.totalAchievementsUnlocked = totalAchievementsUnlocked
+		self.totalAchievementsUnlocked = Int(totalAchievementsUnlocked)
 		self.statistics = statistics
 
-		self.previousTotalAchievementsUnlocked = StatsReader.read() ?? totalAchievementsUnlocked
+		self.previousTotalAchievementsUnlocked = Int(StatsReader.read() ?? totalAchievementsUnlocked)
 		self.totalUnlockedDisplay = previousTotalAchievementsUnlocked
-		StatsReader.write(self.totalAchievementsUnlocked)
+		StatsReader.write(UInt(self.totalAchievementsUnlocked))
+		print("DELTA: \(self.totalAchievementsUnlocked) - \(self.previousTotalAchievementsUnlocked)")
 		let delta = self.totalAchievementsUnlocked - self.previousTotalAchievementsUnlocked
 		log("Total unlock delta: \(delta)")
 
@@ -43,10 +44,6 @@ class HeroView {
 	}
 
 	// MARK: Internal
-
-	func setTotalAchievementsUnlocked(to number: UInt) {
-		totalAchievementsUnlocked = number
-	}
 
 	func draw(in viewBounds: Rect) {
 		defer {
@@ -165,9 +162,9 @@ class HeroView {
 	private let backgroundImage = try! Graphics.Bitmap(path: "hero-bg-trophy")
 	private let trophyImageTable = try! Graphics.BitmapTable(path: "trophy-handles/trophy-handles")
 
-	private var totalAchievementsUnlocked: UInt = 0
+	private var totalAchievementsUnlocked: Int = 0
 	private let statistics: [DisplayStatistic]
-	private let previousTotalAchievementsUnlocked: UInt
+	private let previousTotalAchievementsUnlocked: Int
 
 	private var revolvingStatisticsAnimationController = AnimationController(
 		startValue: 0, endValue: 1, duration: 7000, isRepeating: true)
@@ -220,7 +217,7 @@ class HeroView {
 	private var totalUnlockedAnimationController: AnimationController?
 	private var totalUnlockedSizeAnimationController = AnimationController(
 		startValue: 0, endValue: 0, duration: 0)
-	private var totalUnlockedDisplay: UInt
+	private var totalUnlockedDisplay: Int
 	private var totalUnlockedDisplayIterations: UInt = 0
 	private var totalUnlockedDisplayInitialDelay = AnimationController(
 		startValue: 0, endValue: 1, duration: 1000)
