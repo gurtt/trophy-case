@@ -34,6 +34,7 @@ final class Game: PlaydateGame {
 	static nonisolated(unsafe) let scrollUpSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let actionSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let denialSfx = Sound.SamplePlayer()
+	static nonisolated(unsafe) let alertSfx = Sound.SamplePlayer()
 
 	static nonisolated(unsafe) var bundles: [Bundle] {
 		Game.saveData.hasPlayed ? [brickBreakBundle] + sharedBundles : sharedBundles
@@ -58,6 +59,7 @@ final class Game: PlaydateGame {
 		Game.scrollUpSfx.setSample(path: "SystemSfx/select-reverse")
 		Game.actionSfx.setSample(path: "SystemSfx/action")
 		Game.denialSfx.setSample(path: "SystemSfx/denial")
+		Game.alertSfx.setSample(path: "SystemSfx/alert")
 
 		playMusicMenuItem = System.addCheckmarkMenuItem(
 			title: "music", isChecked: Game.preferences.playMusic,

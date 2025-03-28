@@ -26,8 +26,13 @@ final class BaseView: Navigable {
 	var transitionAnimationController = AnimationController(
 		startValue: 0, endValue: 1, duration: 1000)
 	var isOpaque = true
+	var firstDraw = true
 
 	func update() {
+		if firstDraw {
+			Game.alertSfx.play()
+			firstDraw = false
+		}
 		// TODO: Don't show the "no achievements" insterstitial if there are actually achievements
 		guard state != .interstitial else {
 			Graphics.clear(color: .black)
