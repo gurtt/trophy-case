@@ -116,6 +116,8 @@ final class BaseView: Navigable {
 			case .a:
 				guard state == .interstitial else { break }
 
+				Game.actionSfx.play()
+
 				// TODO: Start the game 'properly' in a reusable way
 				state = .inGame
 				backgroundSprite.addToDisplayList()

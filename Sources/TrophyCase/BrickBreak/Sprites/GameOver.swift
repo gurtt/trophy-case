@@ -27,6 +27,7 @@ final class GameOver: Sprite.Sprite {
 			} else {
 				BaseView.instance?.exit()
 			}
+			Game.actionSfx.play()
 			return
 		}
 
@@ -34,12 +35,14 @@ final class GameOver: Sprite.Sprite {
 		guard canExitToMain else { return }
 
 		if isReplaySelected && System.buttonState.pushed.contains(.right) {
+			Game.scrollDownSfx.play()
 			isReplaySelected = false
 			markDirty()
 			return
 		}
 
 		if !isReplaySelected && System.buttonState.pushed.contains(.left) {
+			Game.scrollDownSfx.play()
 			isReplaySelected = true
 			markDirty()
 			return
