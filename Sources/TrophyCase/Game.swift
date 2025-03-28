@@ -139,10 +139,10 @@ final class Game: PlaydateGame {
 
 		crankDelta += System.crankChange
 		if crankDelta > crankDetentAngle {
-			events.append(.scrollUp)
+			events.append(.scrollDown)
 			crankDelta = 0
 		} else if crankDelta < -crankDetentAngle {
-			events.append(.scrollDown)
+			events.append(.scrollUp)
 			crankDelta = 0
 		}
 
