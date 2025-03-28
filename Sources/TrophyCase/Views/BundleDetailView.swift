@@ -20,40 +20,8 @@ final class BundleDetailView: Navigable {
 
 		transitionStartRect = transitionRect
 
-		// Only show icons if (a) some achievements have an icon and there's a default for the rest, or (b) all achievements have an icon
-		let achievementsWithIcons = bundle.achievements.count(where: { $0.iconPath != nil })
-		if achievementsWithIcons == bundle.achievements.count {
-			defaultAchievementIcon = nil
-			showIcons = true
-
-			log(
-				"Showing achievement icons for bundle \"\(bundle.name)\" because all achievements have icons"
-			)
-		} else if achievementsWithIcons > 0, let defaultIconPath = bundle.defaultIconPath {
-			do {
-				defaultAchievementIcon = try Graphics.Bitmap(
-					path: "/Shared/Achievements/\(bundle.id)/AchievementImages/\(defaultIconPath)")
-				showIcons = true
-
-				log(
-					"Showing achievement icons for bundle \"\(bundle.name)\" because some achievements have icons and a default icon was loaded"
-				)
-			} catch {
-				defaultAchievementIcon = nil
-				showIcons = false
-				log("Couldn't load default icon image at \"\(defaultIconPath)\": \(error)")
-
-				log(
-					"Hiding achievement icons for bundle \"\(bundle.name)\" because some achievements have icons but an error occured while loading the default icon"
-				)
-			}
-		} else {
-			defaultAchievementIcon = nil
-			showIcons = false
-
-			log(
-				"Hiding achievement icons for bundle \"\(bundle.name)\" because no achievements have icons")
-		}
+		// Only show icons if all achievements have an icon
+		showIcons = !bundle.achievements.contains(where: { $0.iconPath == nil })
 
 		orderProxy = BundleDetailView.getOrderProxy(for: sortOrder, in: bundleIndex)
 		hiddenAchievementsCount = bundle.achievements.count - orderProxy.count
@@ -288,7 +256,6 @@ final class BundleDetailView: Navigable {
 	private let showIcons: Bool
 
 	private var cache = ImageCache(distance: 5)
-	private let defaultAchievementIcon: Graphics.Bitmap?
 
 	private var sortOrderMenuItem: System.OptionsMenuItem? = nil
 
@@ -330,13 +297,11 @@ final class BundleDetailView: Navigable {
 
 		if showIcons {
 			Graphics.drawMode = .copy
-			if achievement.iconPath != nil,
-				let image = getAchievementIconImage(i: forItem, path: achievement.iconPath!)
-			{
+			let image = getAchievementIconImage(i: forItem, path: achievement.iconPath!)
+			if let image {
 				Graphics.drawBitmap(image, at: bounds.origin.translatedBy(dx: 4, dy: 4))
 			} else {
-				// showIcons already guarantees that defaultAchievementIcon is a valid Bitmap
-				Graphics.drawBitmap(defaultAchievementIcon!, at: bounds.origin.translatedBy(dx: 4, dy: 4))
+				log("Couldn't load image for achievement \"\(achievement.id)\"")
 			}
 		}
 

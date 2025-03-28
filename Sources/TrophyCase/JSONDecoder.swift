@@ -71,7 +71,6 @@ class BundleContainer {
 	var iconPath: String?
 	var achievements: [AchievementContainer] = []
 	var modifiedAt: Int?
-	var defaultIcon: String?
 }
 
 func shouldDecodeTableValueForKey(
@@ -79,7 +78,7 @@ func shouldDecodeTableValueForKey(
 ) -> Int32 {
 	let bundleKeys: Set = [
 		"bundleID", "gameID", "name", "description", "author", "version", "cardPath", "iconPath",
-		"achievements", "defaultIcon",
+		"achievements",
 	]
 	let achievementKeys: Set = [
 		"id", "name", "description", "descriptionLocked", "isSecret", "progress", "progressMax",
@@ -155,9 +154,6 @@ func didDecodeTableValue(
 				guard valueType == .string else { return }
 				container.iconPath = decodeJsonStringValue(from: rawValue)
 			case "achievements": guard valueType == .array else { return }
-			case "defaultIcon":
-				guard valueType == .string else { return }
-				container.defaultIcon = decodeJsonStringValue(from: rawValue)
 			default: log("Unexpected \"\(key)\" in bundle")
 		}
 	}

@@ -31,7 +31,6 @@ func serialMessageCallback(messagePointer: UnsafePointer<CChar>?) {
 			iconPath:     \(bundle.iconPath ?? "<nil>")
 			achievements: \(bundle.achievements.count) achievements
 			modifiedAt:   \(bundle.modifiedAt)
-			defaultIconPath: \(bundle.defaultIconPath ?? "<nil>")
 			""")
 
 		guard parts.count >= 3 && parts[2].utf8 == "-a".utf8 else { return }

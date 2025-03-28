@@ -128,7 +128,6 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 			&& bundleContainer.version != nil
 		// && bundleContainer.cardPath != nil
 		// && bundleContainer.iconPath != nil
-		// && bundleContainer.defaultIcon != nil
 	else { throw DecodeError(description: "Missing or invalid required fields in bundle data") }
 
 	let bundle = Bundle(
@@ -139,9 +138,7 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 			? "/Shared/Achievements/" + path + bundleContainer.cardPath! : nil,
 		iconPath: (bundleContainer.iconPath != nil)
 			? "/Shared/Achievements/" + path + bundleContainer.iconPath! : nil,
-		achievements: achievements, modifiedAt: modifiedAt,
-		defaultIconPath: (bundleContainer.defaultIcon != nil)
-			? bundleContainer.defaultIcon! : nil)
+		achievements: achievements, modifiedAt: modifiedAt)
 
 	return bundle
 }

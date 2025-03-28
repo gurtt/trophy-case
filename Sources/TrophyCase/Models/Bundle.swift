@@ -15,5 +15,4 @@ struct Bundle: Identifiable {
 	let iconPath: String?
 	let achievements: [Achievement]
 	let modifiedAt: Int
-	let defaultIconPath: String?
 }

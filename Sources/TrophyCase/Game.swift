@@ -27,8 +27,7 @@ final class Game: PlaydateGame {
 		cardPath: "BrickBreak/card",
 		iconPath: "BrickBreak/icon",
 		achievements: Game.saveData.effectiveAchievements,
-		modifiedAt: 0,
-		defaultIconPath: nil  // TODO: Calculate this
+		modifiedAt: 0  // TODO: Calculate this
 	)
 
 	static nonisolated(unsafe) let scrollDownSfx = Sound.SamplePlayer()
