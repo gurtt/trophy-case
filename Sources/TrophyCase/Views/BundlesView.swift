@@ -69,6 +69,8 @@ final class BundlesView: Navigable {
 
 	}
 	func willBecomeCurrent() {
+		Display.refreshRate = 30
+
 		isCurrent = true
 		viewModeMenuItem = addOptionsMenuItem(
 			"view as", options: BundlesViewMode.allCases.map({ $0.description }),

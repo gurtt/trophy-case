@@ -6,6 +6,7 @@ final class Game: PlaydateGame {
 	#endif
 
 	static nonisolated(unsafe) var preferences = PreferencesReader.readPreferences()
+	static nonisolated(unsafe) var saveData = BrickBreakReader.readSaveData()
 
 	static nonisolated(unsafe) var screenUpdateRequested: Bool = false
 
@@ -15,17 +16,30 @@ final class Game: PlaydateGame {
 
 	static func requestScreenUpdate() { Game.screenUpdateRequested = true }
 
-	static nonisolated(unsafe) var navigationController = NavigationController(
-		withRoot: BundlesView())
+	static nonisolated(unsafe) var navigationController = NavigationController(withRoot: BaseView())
 
-	static nonisolated(unsafe) var bundles: [Bundle] = []
+	static nonisolated(unsafe) var brickBreakBundle = Bundle(
+		id: "dev.gurtt.trophycase.brickbreak",
+		name: "Brick Break",
+		description: "Brick Break is a game where you break bricks.",
+		author: "gurtt",
+		version: "1.0.0",
+		cardPath: "BrickBreak/card",
+		iconPath: "BrickBreak/icon",
+		achievements: Game.saveData.effectiveAchievements,
+		modifiedAt: 0,
+		defaultIconPath: nil  // TODO: Calculate this
+	)
+
+	static nonisolated(unsafe) var bundles: [Bundle] {
+		Game.saveData.hasPlayed ? [brickBreakBundle] + sharedBundles : sharedBundles
+	}
+	static nonisolated(unsafe) var sharedBundles: [Bundle] = []
 	static nonisolated(unsafe) var analysisResults: [AnalysisResult] = []
 	static nonisolated(unsafe) var statistics: [DisplayStatistic] = []
 	static nonisolated(unsafe) var totalAchievementsUnlocked: UInt = 0
 
 	var isDrilledDown: Bool = false
-
-	var fallbackScene: FallbackScene
 
 	var crankDelta: Float = 0
 
@@ -44,8 +58,6 @@ final class Game: PlaydateGame {
 
 		Graphics.setFont(.roobert11Medium)
 
-		fallbackScene = FallbackScene()
-
 		scrollDownRepeat.endCallback = { [self] in events.append(.scrollDown) }
 		scrollUpRepeat.endCallback = { [self] in events.append(.scrollUp) }
 
@@ -60,44 +72,49 @@ final class Game: PlaydateGame {
 			log("Cound't make directories for analyser: \(error)")
 		}
 
-		var analyser = Analyser()
-
 		LaunchInfo.setup()
+
+		var analyser = Analyser()
+		if Game.saveData.hasPlayed {  // Analyse the BrickBreak bundle
+			analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
+		}
 
 		var pathsWithData: [String] = []
 		do { pathsWithData = try findBundles() } catch {
-			fallbackScene.variant = .broken
-			fallbackScene.identifier = "err_find_bundles"
-			fallbackScene.message = "Error while enumerating bundles."
 			log("Can't search for bundles: \(error)")
-			return
 		}
+		if !pathsWithData.isEmpty {
+			for path in pathsWithData {
+				do {
+					try Game.sharedBundles.append(decodeBundle(at: path))
 
-		guard !pathsWithData.isEmpty else {
-			fallbackScene.variant = .missing
-			fallbackScene.identifier = "unimplemented_empty"
-			fallbackScene.message = "No bundles were found in 'Shared/'."
-			return
-		}
-
-		for path in pathsWithData {
-			do {
-				try Game.bundles.append(decodeBundle(at: path))
-
-				analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
-			} catch {
-				log("Can't decode bundle at \"\(path)\": \(error)")
+					analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
+				} catch {
+					log("Can't decode bundle at \"\(path)\": \(error)")
+				}
 			}
 		}
-
 		guard !Game.bundles.isEmpty else {
-			fallbackScene.variant = .missing
-			fallbackScene.identifier = "err_decode_all_fail"
-			fallbackScene.message = "0/\(pathsWithData.count) bundles had valid data."
 			return
 		}
 		Game.analysisResults = analyser.analyse(limit: 20)
 		(Game.totalAchievementsUnlocked, Game.statistics) = analyser.getStatistics()
+
+		if !System.buttonState.current.contains(.down) {
+			Game.navigationController = NavigationController(withRoot: BundlesView())
+		}
+	}
+
+	static func goToMain() {
+		// Set the nav controller to the main view and re-analyse achievements in case brick break updated its save data
+		var analyser = Analyser()
+		for (offset, element) in Game.bundles.enumerated() {
+			analyser.ingest(element, index: offset)
+		}
+		Game.analysisResults = analyser.analyse(limit: 20)
+		(Game.totalAchievementsUnlocked, Game.statistics) = analyser.getStatistics()
+
+		Game.navigationController = NavigationController(withRoot: BundlesView())
 	}
 
 	func update() -> Bool {
@@ -152,9 +169,18 @@ final class Game: PlaydateGame {
 		return Game.screenUpdateRequested
 	}
 
-	func gameWillTerminate() { PreferencesReader.writePreferences(Game.preferences) }
+	func gameWillTerminate() {
+		PreferencesReader.writePreferences(Game.preferences)
+		BrickBreakReader.writeSaveData(Game.saveData)
+	}
 
-	func deviceWillSleep() { PreferencesReader.writePreferences(Game.preferences) }
+	func deviceWillSleep() {
+		PreferencesReader.writePreferences(Game.preferences)
+		BrickBreakReader.writeSaveData(Game.saveData)
+	}
 
-	func deviceWillLock() { PreferencesReader.writePreferences(Game.preferences) }
+	func deviceWillLock() {
+		PreferencesReader.writePreferences(Game.preferences)
+		BrickBreakReader.writeSaveData(Game.saveData)
+	}
 }

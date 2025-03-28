@@ -116,9 +116,9 @@ struct Analyser {
 		let bundleProgressInterval = Float(totalUnlocked) / Float(bundle.achievements.count)
 		averageCompletionIntervalRunningTotal += bundleProgressInterval
 		totalAchievementsUnlocked += totalUnlocked
+		let age = getSecondsSinceDetection(for: bundle.id)
 		switch bundleProgressInterval {
-			case 0..<0.5:
-				let age = getSecondsSinceDetection(for: bundle.id)
+			case 0..<0.6:
 				if age < 0 {
 					log("Age is negative for bundle \"\(bundle.id)\". Did the time zone change recently?")
 				}
@@ -133,7 +133,7 @@ struct Analyser {
 					)
 
 				}
-			case 0.5..<0.8:
+			case 0.6..<0.8:
 				break
 			case 0.8..<1:
 				bundleProgressIntervalCandidates.append(
