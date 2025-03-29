@@ -424,8 +424,9 @@ final class BundleDetailView: Navigable {
 	}
 
 	private func drawHiddenAchievementsHint(in bounds: Rect) {
+		let hasNonHiddenAchievements = hiddenAchievementsCount < orderProxy.count
 		let text =
-			"...and \(hiddenAchievementsCount) secret achievement\(hiddenAchievementsCount == 1 ? "" : "s")"
+			"\(hasNonHiddenAchievements ? "...and " : "")\(hiddenAchievementsCount) secret achievement\(hiddenAchievementsCount == 1 ? "" : "s")"
 		let textWidth = Float(Graphics.Font.roobert10Bold.getTextWidth(for: text, tracking: 0))
 		let textHeight: Float = 13
 
