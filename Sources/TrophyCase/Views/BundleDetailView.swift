@@ -222,7 +222,7 @@ final class BundleDetailView: Navigable {
 				listView.selectedItemIndex!.clamp(to: 0...listView.totalItems - 1)
 
 			case .b:
-				Game.scrollUpSfx.play()
+				Game.actionReverseSfx.play()
 				Game.navigationController.pop()
 
 			default:

@@ -21,6 +21,7 @@ final class Game: PlaydateGame {
 	static nonisolated(unsafe) let scrollDownSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let scrollUpSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let actionSfx = Sound.SamplePlayer()
+	static nonisolated(unsafe) let actionReverseSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let denialSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let alertSfx = Sound.SamplePlayer()
 
@@ -43,6 +44,7 @@ final class Game: PlaydateGame {
 		Game.scrollDownSfx.setSample(path: "SystemSfx/select")
 		Game.scrollUpSfx.setSample(path: "SystemSfx/select-reverse")
 		Game.actionSfx.setSample(path: "SystemSfx/action")
+		Game.actionReverseSfx.setSample(path: "SystemSfx/action-reverse")
 		Game.denialSfx.setSample(path: "SystemSfx/denial")
 		Game.alertSfx.setSample(path: "SystemSfx/alert")
 
