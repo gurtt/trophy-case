@@ -20,7 +20,6 @@ class HeroView {
 		self.previousTotalAchievementsUnlocked = Int(StatsReader.read() ?? totalAchievementsUnlocked)
 		self.totalUnlockedDisplay = previousTotalAchievementsUnlocked
 		StatsReader.write(UInt(self.totalAchievementsUnlocked))
-		print("DELTA: \(self.totalAchievementsUnlocked) - \(self.previousTotalAchievementsUnlocked)")
 		let delta = self.totalAchievementsUnlocked - self.previousTotalAchievementsUnlocked
 		log("Total unlock delta: \(delta)")
 
