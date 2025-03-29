@@ -31,7 +31,7 @@ final class GameOver: Sprite.Sprite {
 			return
 		}
 
-		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.sharedBundles.isEmpty
+		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.bundles.isEmpty
 		guard canExitToMain else { return }
 
 		if isReplaySelected && System.buttonState.pushed.contains(.right) {
@@ -54,7 +54,7 @@ final class GameOver: Sprite.Sprite {
 
 		let score = BaseView.instance?.score ?? 0
 		let best = Game.saveData.hasPlayed ? Game.saveData.maxScore : nil
-		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.sharedBundles.isEmpty
+		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.bundles.isEmpty
 
 		let titleText = "Game Over"
 		let titleTextWidth = Graphics.Font.roobert11Bold.getTextWidth(for: titleText, tracking: 0)

@@ -18,28 +18,13 @@ final class Game: PlaydateGame {
 
 	static nonisolated(unsafe) var navigationController = NavigationController(withRoot: BaseView())
 
-	static nonisolated(unsafe) var brickBreakBundle = Bundle(
-		id: "dev.gurtt.trophycase.brickbreak",
-		name: "Brick Break",
-		description: "Brick Break is a game where you break bricks.",
-		author: "gurtt",
-		version: "1.0.0",
-		cardPath: "BrickBreak/card",
-		iconPath: "BrickBreak/icon",
-		achievements: Game.saveData.effectiveAchievements,
-		modifiedAt: 0  // TODO: Calculate this
-	)
-
 	static nonisolated(unsafe) let scrollDownSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let scrollUpSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let actionSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let denialSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let alertSfx = Sound.SamplePlayer()
 
-	static nonisolated(unsafe) var bundles: [Bundle] {
-		Game.saveData.hasPlayed ? [brickBreakBundle] + sharedBundles : sharedBundles
-	}
-	static nonisolated(unsafe) var sharedBundles: [Bundle] = []
+	static nonisolated(unsafe) var bundles: [Bundle] = []
 	static nonisolated(unsafe) var analysisResults: [AnalysisResult] = []
 	static nonisolated(unsafe) var statistics: [DisplayStatistic] = []
 	static nonisolated(unsafe) var totalAchievementsUnlocked: UInt = 0
@@ -85,8 +70,11 @@ final class Game: PlaydateGame {
 
 		LaunchInfo.setup()
 
+		Game.updateBrickBreakBundle()
+
 		var analyser = Analyser()
-		if Game.saveData.hasPlayed {  // Analyse the BrickBreak bundle
+
+		if !Game.bundles.isEmpty {  // probably need to ingest the brick break bundle but this is bad
 			analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
 		}
 
@@ -95,9 +83,10 @@ final class Game: PlaydateGame {
 			log("Can't search for bundles: \(error)")
 		}
 		if !pathsWithData.isEmpty {
+			print("\(pathsWithData.count)")
 			for path in pathsWithData {
 				do {
-					try Game.sharedBundles.append(decodeBundle(at: path))
+					try Game.bundles.append(decodeBundle(at: path))
 
 					analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
 				} catch {
@@ -118,6 +107,7 @@ final class Game: PlaydateGame {
 
 	static func goToMain() {
 		// Set the nav controller to the main view and re-analyse achievements in case brick break updated its save data
+		Game.updateBrickBreakBundle()
 		var analyser = Analyser()
 		for (offset, element) in Game.bundles.enumerated() {
 			analyser.ingest(element, index: offset)
@@ -126,6 +116,30 @@ final class Game: PlaydateGame {
 		(Game.totalAchievementsUnlocked, Game.statistics) = analyser.getStatistics()
 
 		Game.navigationController = NavigationController(withRoot: BundlesView())
+	}
+
+	static func updateBrickBreakBundle() {
+		guard Game.saveData.hasPlayed else { return }
+
+		let bundle = Bundle(
+			id: "dev.gurtt.trophycase.brickbreak",
+			name: "Brick Break",
+			description: "Brick Break is a game where you break bricks.",
+			author: "gurtt",
+			version: "1.0.0",
+			cardPath: "BrickBreak/card",
+			iconPath: "BrickBreak/icon",
+			achievements: Game.saveData.effectiveAchievements,
+			modifiedAt: 0  // TODO: Calculate this
+		)
+
+		guard let i = Game.bundles.firstIndex(where: { $0.id == "dev.gurtt.trophycase.brickbreak" })
+		else {
+			Game.bundles.append(bundle)
+			return
+		}
+
+		Game.bundles[i] = bundle
 	}
 
 	func update() -> Bool {
