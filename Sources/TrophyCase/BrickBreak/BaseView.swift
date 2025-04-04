@@ -85,6 +85,7 @@ final class BaseView: Navigable {
 			canExitToMain ? BaseView.instance!.exit : BaseView.instance!.startGame
 		gameOverSprite.secondaryAction = canExitToMain ? BaseView.instance!.startGame : {}
 		Graphics.pushContext(gameOverSprite.content)
+		Graphics.clear(color: .white)
 		Graphics.drawMode = .copy
 		let bounds = Rect(origin: .zero, width: 304, height: 144)
 		let score = BaseView.instance?.score ?? 0
