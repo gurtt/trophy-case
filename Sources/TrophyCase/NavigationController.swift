@@ -15,6 +15,9 @@ struct NavigationController {
 	}
 
 	private var activeView: any Navigable { views[activeViewIndex] }
+	var isTransitioning: Bool {
+		views.last!.transitionAnimationController.isAnimating
+	}
 
 	// TODO: Rename 'current' to 'active' and keep track of which view is active
 	// TODO: Separate things into lifecycle, internal, private

@@ -185,6 +185,8 @@ final class BundlesView: Navigable {
 		}
 	}
 	private func drawCardItem(forItem: Int, in bounds: Rect, isSelected: Bool) {
+		guard !(isSelected && Game.navigationController.isTransitioning) else { return }
+
 		let bundle = Game.bundles[orderProxy, forItem]
 		let unlocked = bundle.achievements.filter({ $0.isUnlocked }).count
 		let total = bundle.achievements.count
