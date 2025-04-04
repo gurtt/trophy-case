@@ -19,6 +19,7 @@ final class BaseView: Navigable {
 
 	init() {
 		BaseView.instance = self
+		fadeSprite.addToDisplayList()
 	}
 
 	// MARK: Internal
@@ -33,6 +34,12 @@ final class BaseView: Navigable {
 			Game.alertSfx.play()
 			firstDraw = false
 		}
+
+		if state == .exiting && fadeSprite.isFinished {
+			Game.goToMain()
+			return
+		}
+
 		// TODO: Don't show the "no achievements" insterstitial if there are actually achievements
 		guard state != .interstitial else {
 			Graphics.clear(color: .black)
@@ -60,7 +67,7 @@ final class BaseView: Navigable {
 	}
 
 	func endGame() {
-		// TODO: End the game properly: stop blocks from moving
+		guard state == .inGame else { return }
 		state = .gameOver
 		Game.saveData.saveScore(score: score)
 
@@ -97,7 +104,8 @@ final class BaseView: Navigable {
 
 	func exit() {
 		// TODO: Deinitialise this view?
-		Game.goToMain()
+		fadeSprite.fadeToOpaque()
+		state = .exiting
 	}
 
 	deinit {
@@ -147,6 +155,7 @@ final class BaseView: Navigable {
 				statusBarSprite.addToDisplayList()
 				warningSprite.moveTo(Point(x: 200, y: 180))
 				gameOverSprite.moveTo(Point(x: 200, y: 120))
+				fadeSprite.fadetoTransparent()
 
 			default:
 				break
@@ -171,10 +180,12 @@ final class BaseView: Navigable {
 	private let statusBarSprite = StatusBar()
 	private let warningSprite = Warning()
 	private let gameOverSprite = GameOver()
+	private let fadeSprite = Fade()
 
 	enum GameState {
 		case interstitial
 		case inGame
 		case gameOver
+		case exiting
 	}
 }
