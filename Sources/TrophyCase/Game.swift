@@ -85,7 +85,6 @@ final class Game: PlaydateGame {
 			log("Can't search for bundles: \(error)")
 		}
 		if !pathsWithData.isEmpty {
-			print("\(pathsWithData.count)")
 			for path in pathsWithData {
 				do {
 					try Game.bundles.append(decodeBundle(at: path))

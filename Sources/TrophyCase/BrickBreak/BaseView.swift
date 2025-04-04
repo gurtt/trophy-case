@@ -108,10 +108,6 @@ final class BaseView: Navigable {
 		state = .exiting
 	}
 
-	deinit {
-		print("Bye!")
-	}
-
 	func willBecomeCurrent() {
 		Display.refreshRate = 50
 	}
