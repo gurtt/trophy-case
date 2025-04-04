@@ -9,10 +9,11 @@ import PlaydateKit
 
 extension System.DateTime: @retroactive CustomStringConvertible {
 	public var description: String {
-		let hour =
+		let displayHour =
 			System.shouldDisplay24HourTime ? hour : (hour == 0 ? 12 : hour > 12 ? hour - 12 : hour)
-		let meridiem = System.shouldDisplay24HourTime ? "" : (hour < 12 ? " AM" : " PM")
+		let displayMinute = "\(minute < 10 ? "0" : "")\(minute)"
+		let meridiem = System.shouldDisplay24HourTime ? "" : (hour < 12 ? " pm" : " am")
 
-		return "\(year)/\(month)/\(day) \(hour):\(minute):\(second)\(meridiem)"
+		return "\(year)/\(month)/\(day) \(displayHour):\(displayMinute)\(meridiem)"
 	}
 }
