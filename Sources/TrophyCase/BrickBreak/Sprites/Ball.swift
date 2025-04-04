@@ -61,7 +61,7 @@ final class Ball: Sprite.Sprite {
 		velocity = Ball.initialVelocity
 	}
 
-	private var velocity = Ball.initialVelocity
+	private var velocity = Vector2D(radius: 0, theta: 0)
 
 	private static let initialVelocity = Vector2D(radius: 2, theta: .pi / 2)
 	private static nonisolated(unsafe) let initialPosition = Point(x: 206, y: 140)

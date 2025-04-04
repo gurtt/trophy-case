@@ -1,0 +1,149 @@
+//
+//  Dialog.swift
+//  TrophyCase
+//
+//  Created by gurtt on 4/4/2025.
+//
+
+import PlaydateKit
+
+final class Dialog: Sprite.Sprite {
+	// MARK: Lifecycle
+
+	override init() {
+		super.init()
+		collisionsEnabled = false
+		zIndex = 2000
+
+		let xMargin = 32
+		let yMargin = 32
+		bounds = Rect(
+			x: xMargin, y: yMargin, width: Display.width - (xMargin * 2),
+			height: Display.height - (yMargin * 2))
+		moveTo(Point(x: 200, y: 340))
+		transitionAnimationController.skip(to: .start)
+	}
+
+	convenience init(
+		content: Graphics.Bitmap?, primaryAction: @escaping () -> Void = {},
+		primaryActionText: String = "OK", secondaryAction: @escaping () -> Void = {},
+		secondaryActionText: String?
+	) {
+		self.init()
+
+		self.content = content ?? self.content
+		self.primaryAction = primaryAction
+		self.primaryActionText = primaryActionText
+		self.secondaryAction = secondaryAction
+		self.secondaryActionText = secondaryActionText
+	}
+
+	// MARK: Internal
+
+	var primaryAction: () -> Void = {}
+
+	var secondaryAction: () -> Void = {}
+
+	func show() {
+		transitionAnimationController.animate(to: .end)
+		Game.alertSfx.play()
+	}
+
+	func dismiss() {
+		transitionAnimationController.animate(to: .start)
+		// Very gross, but these cause strong ref cycles because weak references aren't allowed 😐
+		primaryAction = {}
+		secondaryAction = {}
+	}
+
+	override func update() {
+		moveTo(Point(x: 200, y: transitionAnimationController.value))
+
+		transitionAnimationController.tick()
+
+		guard transitionAnimationController.targetState == .end else { return }
+		if System.buttonState.pushed.contains(.a) {
+			if primaryActionIsSelected {
+				primaryAction()
+			} else {
+				secondaryAction()
+			}
+			Game.actionSfx.play()
+			dismiss()
+			return
+		}
+
+		if secondaryActionText != nil {
+			if primaryActionIsSelected && System.buttonState.pushed.contains(.left) {
+				Game.scrollDownSfx.play()
+				primaryActionIsSelected = false
+				markDirty()
+				return
+			}
+
+			if !primaryActionIsSelected && System.buttonState.pushed.contains(.right) {
+				Game.scrollDownSfx.play()
+				primaryActionIsSelected = true
+				markDirty()
+				return
+			}
+		}
+
+		// TODO: Flashing focus ring on active button
+	}
+
+	override func draw(bounds _: Rect, drawRect _: Rect) {
+		Graphics.drawMode = .copy
+
+		// Draw backing
+		Graphics.fillRoundRect(bounds, radius: 3, color: .white)
+		Graphics.drawRoundRect(bounds, lineWidth: 3, radius: 3, color: .black)
+
+		// TODO: Draw content
+		Graphics.drawBitmap(content, at: bounds.origin.translatedBy(dx: 16, dy: 16))
+
+		// Draw buttons
+		func drawAction(at origin: Point, text: String, isSelected: Bool) {
+			let actionWidth: Float = 137
+			let actionHeight: Float = 38
+			let actionBounds = Rect(origin: origin, width: actionWidth, height: actionHeight)
+
+			Graphics.drawMode = .copy
+			Graphics.fillRoundRect(actionBounds, radius: 3, color: isSelected ? .black : .white)
+			if !isSelected {
+				Graphics.drawRoundRect(actionBounds, lineWidth: 3, radius: 3, color: .black)
+			}
+
+			Graphics.drawMode = .nxor
+			Graphics.setFont(.roobert11Medium)
+			Graphics.drawTextInRect(
+				text,
+				in: actionBounds.translatedBy(
+					dx: 0,
+					dy: Float(actionBounds.height / 2) - Float(Graphics.Font.roobert11Medium.height / 2)),
+				wrap: .word, aligned: .center)
+		}
+
+		let hasSecondaryAction = secondaryActionText != nil
+		drawAction(
+			at: bounds.origin.translatedBy(dx: hasSecondaryAction ? 172 : 98, dy: 122),
+			text: primaryActionText, isSelected: primaryActionIsSelected)
+		if let secondaryActionText {
+			drawAction(
+				at: bounds.origin.translatedBy(dx: 27, dy: 122), text: secondaryActionText,
+				isSelected: !primaryActionIsSelected)
+		}
+	}
+
+	let padding: Float = 16
+	var content = Graphics.Bitmap(width: 304, height: 144)
+
+	// MARK: Private
+
+	private var primaryActionText: String = "OK"
+	private var secondaryActionText: String?
+	private var primaryActionIsSelected = true
+
+	private var transitionAnimationController = AnimationController(
+		startValue: 340, endValue: 120, duration: 500, easing: .outBack)
+}

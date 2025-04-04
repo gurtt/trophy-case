@@ -19,7 +19,27 @@ final class BaseView: Navigable {
 
 	init() {
 		BaseView.instance = self
+		backgroundSprite.addToDisplayList()
+		paddleSprite.addToDisplayList()
+		ballSprite.addToDisplayList()
+
+		for wall in wallSprites {
+			wall.addToDisplayList()
+		}
+
+		statusBarSprite.addToDisplayList()
+		warningSprite.moveTo(Point(x: 200, y: 180))
+		gameOverSprite.moveTo(Point(x: 200, y: 120))
+
+		interstitialView.primaryAction = dismissInterstitial
+		Graphics.pushContext(interstitialView.content)
+		InterstitalView.draw()
+		Graphics.popContext()
+		interstitialView.show()
+		interstitialView.addToDisplayList()
+
 		fadeSprite.addToDisplayList()
+		gameOverSprite.addToDisplayList()
 	}
 
 	// MARK: Internal
@@ -27,25 +47,14 @@ final class BaseView: Navigable {
 	var transitionAnimationController = AnimationController(
 		startValue: 0, endValue: 1, duration: 1000)
 	var isOpaque = true
-	var firstDraw = true
 
 	func update() {
-		if firstDraw {
-			Game.alertSfx.play()
-			firstDraw = false
-		}
-
 		if state == .exiting && fadeSprite.isFinished {
 			Game.goToMain()
 			return
 		}
 
 		// TODO: Don't show the "no achievements" insterstitial if there are actually achievements
-		guard state != .interstitial else {
-			Graphics.clear(color: .black)
-			interstitialView.draw()
-			return
-		}
 
 		#if DEBUG
 			if System.buttonState.pushed.contains(.down) {
@@ -71,8 +80,48 @@ final class BaseView: Navigable {
 		state = .gameOver
 		Game.saveData.saveScore(score: score)
 
-		gameOverSprite.addToDisplayList()
+		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.bundles.isEmpty
+		gameOverSprite.primaryAction =
+			canExitToMain ? BaseView.instance!.exit : BaseView.instance!.startGame
+		gameOverSprite.secondaryAction = canExitToMain ? BaseView.instance!.startGame : {}
+		Graphics.pushContext(gameOverSprite.content)
+		Graphics.drawMode = .copy
+		let bounds = Rect(origin: .zero, width: 304, height: 144)
+		let score = BaseView.instance?.score ?? 0
+		let best = Game.saveData.hasPlayed ? Game.saveData.maxScore : nil
+		let titleText = "Game Over"
+		let titleTextWidth = Graphics.Font.roobert11Bold.getTextWidth(for: titleText, tracking: 0)
+		let scoreText = "Score: \(score)\(best != nil ? " Best: \(best!)" : "")"
+		let scoreTextWidth = Graphics.Font.roobert10Bold.getTextWidth(for: scoreText, tracking: 0)
+		let backToTitleText =
+			canExitToMain
+			? "Do you want to play another round or head back to Trophy Case?"
+			: "Get a score of at least 100 to earn an achievement."
 
+		// Draw title
+		let titleLocation = bounds.origin.translatedBy(
+			dx: (bounds.width / 2) - (Float(titleTextWidth) / 2), dy: 0)
+		Graphics.setFont(.roobert11Bold)
+		Graphics.drawText(titleText, at: titleLocation)
+
+		// Draw score
+		let scoreLocation = bounds.origin.translatedBy(
+			dx: (bounds.width / 2) - (Float(scoreTextWidth) / 2),
+			dy: Float(Graphics.Font.roobert11Bold.height))
+		Graphics.setFont(.roobert10Bold)
+		Graphics.drawText(scoreText, at: scoreLocation)
+
+		// Draw back to title prompt
+		let backToTitleBounds = Rect(
+			origin: bounds.origin.translatedBy(
+				dx: 0,
+				dy: Float(Graphics.Font.roobert11Bold.height)
+					+ Float(Graphics.Font.roobert10Bold.height) + 16), width: bounds.width,
+			height: 50)
+		Graphics.setFont(.roobert11Medium)
+		Graphics.drawTextInRect(backToTitleText, in: backToTitleBounds, wrap: .word, aligned: .center)
+		Graphics.popContext()
+		gameOverSprite.show()
 	}
 
 	func startGame() {
@@ -99,13 +148,17 @@ final class BaseView: Navigable {
 		}
 
 		state = .inGame
-		gameOverSprite.removeFromDisplayList()
 	}
 
 	func exit() {
 		// TODO: Deinitialise this view?
 		fadeSprite.fadeToOpaque()
 		state = .exiting
+	}
+
+	func dismissInterstitial() {
+		startGame()
+		fadeSprite.fadetoTransparent()
 	}
 
 	func willBecomeCurrent() {
@@ -121,45 +174,11 @@ final class BaseView: Navigable {
 	}
 
 	func handleInputEvent(_ event: InputEvent) {
-		switch event {
-			case .a:
-				guard state == .interstitial else { break }
-
-				Game.actionSfx.play()
-
-				// TODO: Start the game 'properly' in a reusable way
-				state = .inGame
-				backgroundSprite.addToDisplayList()
-				paddleSprite.addToDisplayList()
-				ballSprite.addToDisplayList()
-
-				for wall in wallSprites {
-					wall.addToDisplayList()
-				}
-
-				let blockColumns = 10
-				let blockRows = 7
-				for i in 0..<(blockColumns * blockRows) {
-					let x = (i % 10) * 40 + 40 / 2
-					let y = ((i / 10) * 24 + 24 / 2) - 72
-
-					let sprite = Block()
-					sprite.moveTo(Point(x: x, y: y))
-					sprite.addToDisplayList()
-					blockSprites.append(sprite)
-				}
-				statusBarSprite.addToDisplayList()
-				warningSprite.moveTo(Point(x: 200, y: 180))
-				gameOverSprite.moveTo(Point(x: 200, y: 120))
-				fadeSprite.fadetoTransparent()
-
-			default:
-				break
-		}
+		//
 	}
 
 	// MARK: Private
-	private let interstitialView = InterstitalView()
+	private let interstitialView = Dialog(content: nil, secondaryActionText: nil)
 	var state: GameState = .interstitial
 
 	private let backgroundSprite = Background()
@@ -175,7 +194,9 @@ final class BaseView: Navigable {
 	]
 	private let statusBarSprite = StatusBar()
 	private let warningSprite = Warning()
-	private let gameOverSprite = GameOver()
+	private let gameOverSprite = Dialog(
+		content: nil, primaryAction: {}, primaryActionText: "Trophy Case", secondaryAction: {},
+		secondaryActionText: "Play Again")
 	private let fadeSprite = Fade()
 
 	enum GameState {
