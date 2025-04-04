@@ -87,6 +87,12 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 
 	do { try bundleFile.close() } catch { throw DecodeError(description: error.description) }
 
+	guard bundleContainer.decodeError == nil else {
+		throw DecodeError(
+			description:
+				"Discarding bundle because of JSON decode error: \(bundleContainer.decodeError ?? "<nil>")")
+	}
+
 	guard !bundleContainer.achievements.isEmpty else {
 		throw DecodeError(description: "No achievements in bundle")
 	}
@@ -118,8 +124,7 @@ func decodeBundle(at path: String) throws(DecodeError) -> Bundle {
 			unlockedIconPath: (achievementContainer.unlockedIconPath != nil)
 				? "/Shared/Achievements/" + path + "AchievementImages/" + achievementContainer
 					.unlockedIconPath!
-				: nil
-		)
+				: nil)
 	}
 
 	guard

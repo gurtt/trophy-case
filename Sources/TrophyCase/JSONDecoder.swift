@@ -71,6 +71,8 @@ class BundleContainer {
 	var iconPath: String?
 	var achievements: [AchievementContainer] = []
 	var modifiedAt: Int?
+
+	var decodeError: String?
 }
 
 func shouldDecodeTableValueForKey(
@@ -207,4 +209,8 @@ func decodeError(
 ) {
 	let error = String(cString: errorPointer!)
 	log("Can't decode JSON: \(error) at line \(lineNumber)")
+
+	let decoder = decoderPointer!.pointee
+	let container = Unmanaged<BundleContainer>.fromOpaque(decoder.userdata).takeUnretainedValue()
+	container.decodeError = error
 }
