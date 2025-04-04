@@ -116,6 +116,7 @@ final class Game: PlaydateGame {
 		Game.analysisResults = analyser.analyse(limit: 20)
 		(Game.totalAchievementsUnlocked, Game.statistics) = analyser.getStatistics()
 
+		BaseView.instance = nil  // manually kill the instance so it goes away
 		Game.navigationController = NavigationController(withRoot: BundlesView())
 	}
 
