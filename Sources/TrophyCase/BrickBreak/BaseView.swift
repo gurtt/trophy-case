@@ -31,15 +31,20 @@ final class BaseView: Navigable {
 		warningSprite.moveTo(Point(x: 200, y: 180))
 		gameOverSprite.moveTo(Point(x: 200, y: 120))
 
-		interstitialView.primaryAction = dismissInterstitial
-		Graphics.pushContext(interstitialView.content)
-		InterstitalView.draw()
-		Graphics.popContext()
-		interstitialView.show()
-		interstitialView.addToDisplayList()
-
 		fadeSprite.addToDisplayList()
 		gameOverSprite.addToDisplayList()
+
+		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.bundles.isEmpty
+		guard !canExitToMain else {
+			dismissInterstitial()
+			return
+		}
+		interstitialSprite.primaryAction = dismissInterstitial
+		Graphics.pushContext(interstitialSprite.content)
+		InterstitalView.draw()
+		Graphics.popContext()
+		interstitialSprite.show()
+		interstitialSprite.addToDisplayList()
 	}
 
 	// MARK: Internal
@@ -179,7 +184,7 @@ final class BaseView: Navigable {
 	}
 
 	// MARK: Private
-	private let interstitialView = Dialog(content: nil, secondaryActionText: nil)
+	private let interstitialSprite = Dialog(content: nil, secondaryActionText: nil)
 	var state: GameState = .interstitial
 
 	private let backgroundSprite = Background()
