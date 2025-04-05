@@ -60,7 +60,10 @@ final class BundlesView: Navigable {
 					height: Float(Display.height)))
 		}
 
-		let largeTickerViewBounds = Rect(x: 0, y: Display.height - 36, width: Display.width, height: 36)
+		let tickerEntryOffset = Int(
+			lerp(from: 0, to: 100, using: heroView.entryAnimationController.value))
+		let largeTickerViewBounds = Rect(
+			x: 0, y: Display.height - 36 + tickerEntryOffset, width: Display.width, height: 36)
 		let smallTickerViewBounds = Rect(x: 0, y: 0, width: Display.width, height: 15)
 		let tickerViewDrawBounds = lerp(
 			from: largeTickerViewBounds, to: smallTickerViewBounds,

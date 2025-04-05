@@ -47,6 +47,7 @@ class HeroView {
 	func draw(in viewBounds: Rect) {
 		defer {
 			// Update timers
+			entryAnimationController.tick()
 			revolvingStatisticsAnimationController.tick()
 			statisticsTransitionAnimationController.tick()
 			trophyAnimationController.tick()
@@ -55,20 +56,29 @@ class HeroView {
 			totalUnlockedDisplayInitialDelay.tick()
 		}
 
+		Graphics.fillRect(viewBounds, color: .black)
+
+		let leftEntryOffset = -400 * entryAnimationController.value
+		let rightEntryOffset = -leftEntryOffset
+
 		// Draw background image
 		Graphics.drawMode = .copy
-		Graphics.drawBitmap(backgroundImage, at: viewBounds.origin)
+		Graphics.drawBitmap(
+			backgroundImage,
+			at: viewBounds.origin.translatedBy(dx: leftEntryOffset, dy: 0))
 
 		// Draw spinning trophy
 		Graphics.drawBitmap(
 			trophyImageTable[Int(trophyAnimationController.value)] ?? trophyImageTable[0]!,
-			at: viewBounds.origin.translatedBy(dx: 17, dy: 34))
+			at: viewBounds.origin.translatedBy(dx: 17 + leftEntryOffset, dy: 34))
 
 		// Draw total unlocked
 		// TODO: Draw these relative to the view bounds
 		Graphics.setFont(.roobert10Bold)
 		Graphics.drawMode = .inverted
-		Graphics.drawText("TOTAL UNLOCKED", at: viewBounds.origin.translatedBy(dx: 386 - 117, dy: 33))  // 117px wide
+		Graphics.drawText(
+			"TOTAL UNLOCKED", at: viewBounds.origin.translatedBy(dx: 386 - 117 + rightEntryOffset, dy: 33)
+		)  // 117px wide
 
 		let totalUnlockedTextWidth = Float(
 			Graphics.Font.showtime.getTextWidth(for: String(totalUnlockedDisplay), tracking: 0))
@@ -80,7 +90,7 @@ class HeroView {
 		Graphics.drawText(String(totalUnlockedDisplay), at: .zero)
 		Graphics.popContext()
 
-		let totalUnlockedPosition = viewBounds.origin.translatedBy(dx: 386, dy: 48)
+		let totalUnlockedPosition = viewBounds.origin.translatedBy(dx: 386 + rightEntryOffset, dy: 48)
 		let scale = lerp(from: 1, to: 1.7, using: totalUnlockedSizeAnimationController.value)
 		Graphics.drawMode = .copy
 		Graphics.drawBitmap(
@@ -119,13 +129,15 @@ class HeroView {
 		Graphics.setClipRect(statisticTitleClipRect)
 		Graphics.drawText(
 			statistic.title,
-			at: viewBounds.origin.translatedBy(dx: 386 - statisticTitleTextWidth, dy: statisticTitleDrawY)
+			at: viewBounds.origin.translatedBy(
+				dx: 386 - statisticTitleTextWidth + rightEntryOffset, dy: statisticTitleDrawY)
 		)
 		Graphics.setFont(.showtime)
 		Graphics.setClipRect(statisticBodyClipRect)
 		Graphics.drawText(
 			statistic.body,
-			at: viewBounds.origin.translatedBy(dx: 386 - statisticBodyTextWidth, dy: statisticBodyDrawY))
+			at: viewBounds.origin.translatedBy(
+				dx: 386 - statisticBodyTextWidth + rightEntryOffset, dy: statisticBodyDrawY))
 		Graphics.clearClipRect()
 
 		// TODO: Refresh only this area by drawing the background image in the clipped parts
@@ -143,14 +155,14 @@ class HeroView {
 			Graphics.drawText(
 				previousStatistic.title,
 				at: viewBounds.origin.translatedBy(
-					dx: 386 - previousStatisticTitleTextWidth,
+					dx: 386 - previousStatisticTitleTextWidth + rightEntryOffset,
 					dy: statisticTitleDrawY + Float(Graphics.Font.roobert10Bold.height)))
 			Graphics.setFont(.showtime)
 			Graphics.setClipRect(statisticBodyClipRect)
 			Graphics.drawText(
 				previousStatistic.body,
 				at: viewBounds.origin.translatedBy(
-					dx: 386 - previousStatisticBodyTextWidth,
+					dx: 386 - previousStatisticBodyTextWidth + rightEntryOffset,
 					dy: statisticBodyDrawY + Float(Graphics.Font.showtime.height)))
 			Graphics.clearClipRect()
 		}
@@ -213,6 +225,8 @@ class HeroView {
 		totalUnlockedDisplay += 1
 	}
 
+	var entryAnimationController = AnimationController(
+		startValue: 1, endValue: 0, duration: 250, easing: .outQuad)
 	private var totalUnlockedAnimationController: AnimationController?
 	private var totalUnlockedSizeAnimationController = AnimationController(
 		startValue: 0, endValue: 0, duration: 0)
