@@ -59,9 +59,7 @@ final class Game: PlaydateGame {
 		scrollDownRepeat.endCallback = { [self] in events.append(.scrollDown) }
 		scrollUpRepeat.endCallback = { [self] in events.append(.scrollUp) }
 
-		#if DEBUG
-			System.setSerialMessageCallback(callback: serialMessageCallback)
-		#endif
+		System.setSerialMessageCallback(callback: serialMessageCallback)
 
 		do {
 			try File.mkdir(path: "DerivedData")
