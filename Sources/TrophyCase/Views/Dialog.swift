@@ -145,5 +145,5 @@ final class Dialog: Sprite.Sprite {
 	private var primaryActionIsSelected = true
 
 	private var transitionAnimationController = AnimationController(
-		startValue: 340, endValue: 120, duration: 500, easing: .outBack)
+		startValue: 340, endValue: 120, duration: 350, easing: .outBack)
 }
