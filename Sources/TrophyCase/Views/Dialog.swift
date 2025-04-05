@@ -47,6 +47,10 @@ final class Dialog: Sprite.Sprite {
 	func show() {
 		transitionAnimationController.animate(to: .end)
 		Game.alertSfx.play()
+		selectedActionOutlineAnimationController.endCallback = {
+			self.drawThickOutlines.toggle()
+			self.markDirty()
+		}
 	}
 
 	func dismiss() {
@@ -54,12 +58,14 @@ final class Dialog: Sprite.Sprite {
 		// Very gross, but these cause strong ref cycles because weak references aren't allowed 😐
 		primaryAction = {}
 		secondaryAction = {}
+		selectedActionOutlineAnimationController.endCallback = {}
 	}
 
 	override func update() {
 		moveTo(Point(x: 200, y: transitionAnimationController.value))
 
 		transitionAnimationController.tick()
+		selectedActionOutlineAnimationController.tick()
 
 		guard transitionAnimationController.targetState == .end else { return }
 		if System.buttonState.pushed.contains(.a) {
@@ -88,8 +94,6 @@ final class Dialog: Sprite.Sprite {
 				return
 			}
 		}
-
-		// TODO: Flashing focus ring on active button
 	}
 
 	override func draw(bounds _: Rect, drawRect _: Rect) {
@@ -115,7 +119,10 @@ final class Dialog: Sprite.Sprite {
 
 			Graphics.drawMode = .copy
 			Graphics.fillRoundRect(actionBounds, radius: 2, color: isSelected ? .black : .white)
-			Graphics.drawRoundRect(actionBounds, lineWidth: 3, radius: 2, color: .black)
+			Graphics.drawRoundRect(
+				actionBounds,
+				lineWidth: isSelected && drawThickOutlines ? 5 : 3,
+				radius: 2, color: .black)
 
 			Graphics.drawMode = .nxor
 			Graphics.setFont(.roobert11Medium)
@@ -146,7 +153,10 @@ final class Dialog: Sprite.Sprite {
 	private var primaryActionText: String = "OK"
 	private var secondaryActionText: String?
 	private var primaryActionIsSelected = true
+	private var drawThickOutlines = false
 
 	private var transitionAnimationController = AnimationController(
 		startValue: 340, endValue: 120, duration: 350, easing: .outBack)
+	private var selectedActionOutlineAnimationController = AnimationController(
+		startValue: 0, endValue: 1, duration: 500, isRepeating: true)
 }
