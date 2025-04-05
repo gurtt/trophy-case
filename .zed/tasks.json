@@ -1,0 +1,9 @@
+[
+  {
+    "label": "Build and Run in Simulator",
+    "cwd": "$ZED_WORKTREE_ROOT/.swiftpm",
+    "command": "./build-and-run.sh",
+    "env": { "PRODUCT_NAME": "TrophyCase" },
+    "hide": "on_success"
+  }
+]
