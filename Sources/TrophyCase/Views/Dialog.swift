@@ -93,11 +93,16 @@ final class Dialog: Sprite.Sprite {
 	}
 
 	override func draw(bounds _: Rect, drawRect _: Rect) {
+		let lineWidth: Float = 3
+		let halfLineWidth: Float = lineWidth / 2
+		let transformedBounds = Rect(
+			x: bounds.origin.x + halfLineWidth, y: bounds.origin.y + halfLineWidth,
+			width: bounds.width - lineWidth, height: bounds.height - lineWidth)
 		Graphics.drawMode = .copy
 
 		// Draw backing
-		Graphics.fillRoundRect(bounds, radius: 3, color: .white)
-		Graphics.drawRoundRect(bounds, lineWidth: 3, radius: 3, color: .black)
+		Graphics.fillRoundRect(transformedBounds, radius: 4, color: .white)
+		Graphics.drawRoundRect(transformedBounds, lineWidth: 3, radius: 4, color: .black)
 
 		// TODO: Draw content
 		Graphics.drawBitmap(content, at: bounds.origin.translatedBy(dx: 16, dy: 16))
@@ -109,10 +114,8 @@ final class Dialog: Sprite.Sprite {
 			let actionBounds = Rect(origin: origin, width: actionWidth, height: actionHeight)
 
 			Graphics.drawMode = .copy
-			Graphics.fillRoundRect(actionBounds, radius: 3, color: isSelected ? .black : .white)
-			if !isSelected {
-				Graphics.drawRoundRect(actionBounds, lineWidth: 3, radius: 3, color: .black)
-			}
+			Graphics.fillRoundRect(actionBounds, radius: 2, color: isSelected ? .black : .white)
+			Graphics.drawRoundRect(actionBounds, lineWidth: 3, radius: 2, color: .black)
 
 			Graphics.drawMode = .nxor
 			Graphics.setFont(.roobert11Medium)
