@@ -25,8 +25,6 @@ final class Block: Sprite.Sprite {
 	override func update() {
 		guard BaseView.instance?.state == .inGame else { return }
 
-		moveBy(dx: 0, dy: 0.01 * (System.buttonState.current.contains(.b) ? 50 : 1))
-
 		guard position.y < Block.maxY - (bounds.height / 2) else {
 			BaseView.instance?.endGame()
 			return

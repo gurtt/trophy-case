@@ -67,6 +67,15 @@ final class BaseView: Navigable {
 			}
 		#endif
 
+		let cutoffTime =
+			System.buttonState.current.contains(.b) ? msBetweenFastBlockMoves : msBetweenBlockMoves
+		if state == .inGame && Int(System.currentTimeMilliseconds) - lastBlockMoveTime >= cutoffTime {
+			for block in blockSprites {
+				block.moveBy(dx: 0, dy: 1)
+			}
+			lastBlockMoveTime = Int(System.currentTimeMilliseconds)
+		}
+
 		if blockSprites.contains(where: { blockSprite in blockSprite.position.y > Block.maxY - 25 }) {
 			warningSprite.addToDisplayList()
 		} else {
@@ -152,6 +161,7 @@ final class BaseView: Navigable {
 			sprite.addToDisplayList()
 			blockSprites.append(sprite)
 		}
+		lastBlockMoveTime = Int(System.currentTimeMilliseconds)
 
 		state = .inGame
 	}
@@ -204,6 +214,9 @@ final class BaseView: Navigable {
 		content: nil, primaryAction: {}, primaryActionText: "Trophy Case", secondaryAction: {},
 		secondaryActionText: "Play Again")
 	private let fadeSprite = Fade()
+	private var lastBlockMoveTime = 0
+	private let msBetweenBlockMoves = 2000
+	private let msBetweenFastBlockMoves = 40
 
 	enum GameState {
 		case interstitial
