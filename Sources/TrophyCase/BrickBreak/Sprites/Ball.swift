@@ -40,8 +40,8 @@ final class Ball: Sprite.Sprite {
 			guard let otherType = Sprite.type(rawValue: other.tag) else { break }
 			switch otherType {
 				case .block:
+					guard BaseView.instance?.state == .inGame else { break }
 					(other as! Block).hit()
-					break
 				case .paddle:
 					let paddleBounds = other.bounds
 					let paddleHalfWidth = paddleBounds.width / 2
