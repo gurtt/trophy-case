@@ -16,8 +16,10 @@ final class Game: PlaydateGame {
 
 	static func requestScreenUpdate() { Game.screenUpdateRequested = true }
 
-	static nonisolated(unsafe) var navigationController = NavigationController(withRoot: BaseView())
+	static nonisolated(unsafe) var navigationController: NavigationController = NavigationController(
+		withRoot: BundlesView())
 
+	static nonisolated(unsafe) var bgFilePlayer = Sound.FilePlayer()
 	static nonisolated(unsafe) let scrollDownSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let scrollUpSfx = Sound.SamplePlayer()
 	static nonisolated(unsafe) let actionSfx = Sound.SamplePlayer()
@@ -52,7 +54,13 @@ final class Game: PlaydateGame {
 			title: "music", isChecked: Game.preferences.playMusic,
 			callback: { isChecked in
 				Game.preferences.playMusic = isChecked
+				if Game.preferences.playMusic {
+					Game.bgFilePlayer.play(repeat: 0)
+				} else {
+					Game.bgFilePlayer.stop()
+				}
 			})
+		Game.bgFilePlayer = Sound.FilePlayer()
 
 		Graphics.setFont(.roobert11Medium)
 
@@ -94,14 +102,15 @@ final class Game: PlaydateGame {
 			}
 		}
 		guard !Game.bundles.isEmpty else {
+			Game.navigationController = NavigationController(withRoot: BaseView())
+			return
+		}
+		guard !System.buttonState.current.contains(.down) else {
+			Game.navigationController = NavigationController(withRoot: BaseView())
 			return
 		}
 		Game.analysisResults = analyser.analyse(limit: 20)
 		(Game.totalAchievementsUnlocked, Game.statistics) = analyser.getStatistics()
-
-		if !System.buttonState.current.contains(.down) {
-			Game.navigationController = NavigationController(withRoot: BundlesView())
-		}
 	}
 
 	static func goToMain() {

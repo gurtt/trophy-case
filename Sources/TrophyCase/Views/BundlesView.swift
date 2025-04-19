@@ -27,6 +27,13 @@ final class BundlesView: Navigable {
 		heroViewAnimationController.startCallback = { [self] in
 			tickerView.isSmall = false
 		}
+
+		Game.bgFilePlayer.load(path: "small-wins")
+		Game.bgFilePlayer.setLoopRange(start: 7.5, end: 93.749)
+		Game.bgFilePlayer.setVolume(0.4)
+		if Game.preferences.playMusic {
+			Game.bgFilePlayer.play(repeat: 0)
+		}
 	}
 	// MARK: Internal
 
