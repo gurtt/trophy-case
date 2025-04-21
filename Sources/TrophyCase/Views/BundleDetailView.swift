@@ -60,11 +60,6 @@ final class BundleDetailView: Navigable {
 		}
 	}
 
-	deinit {
-		// Check for reference cycles
-		log("Deinitialising instance")
-	}
-
 	// MARK: Internal
 
 	let isOpaque = true
@@ -179,6 +174,8 @@ final class BundleDetailView: Navigable {
 	func willExit() {
 		// Clean up reference cycle
 		listView.drawItem = { (_, _, _) in }
+		timeDisplayPreAnimationController.endCallback = {}
+		timeDisplayPostAnimationController.endCallback = {}
 	}
 
 	func handleInputEvent(_ event: InputEvent) {
