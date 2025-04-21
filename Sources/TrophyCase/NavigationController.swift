@@ -22,7 +22,14 @@ struct NavigationController {
 	// TODO: Rename 'current' to 'active' and keep track of which view is active
 	// TODO: Separate things into lifecycle, internal, private
 	// TODO: Support overlay view (the ticker) (how do we pass it events?)
-	init(withRoot view: any Navigable) {
+	init(withRoot view: (any Navigable)? = nil) {
+		// init without a root view is allowed for convenience but isn't guaranteed to behave correctly
+		guard let view else {
+			views = []
+			activeViewIndex = 0
+			return
+		}
+
 		views = [view]
 		activeViewIndex = 0
 		activeView.transitionAnimationController.skip(to: .end)

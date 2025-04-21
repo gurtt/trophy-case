@@ -16,8 +16,7 @@ final class Game: PlaydateGame {
 
 	static func requestScreenUpdate() { Game.screenUpdateRequested = true }
 
-	static nonisolated(unsafe) var navigationController: NavigationController = NavigationController(
-		withRoot: BundlesView())
+	static nonisolated(unsafe) var navigationController: NavigationController = NavigationController()
 
 	static nonisolated(unsafe) var bgFilePlayer = Sound.FilePlayer()
 	static nonisolated(unsafe) let scrollDownSfx = Sound.SamplePlayer()
@@ -111,6 +110,8 @@ final class Game: PlaydateGame {
 		}
 		Game.analysisResults = analyser.analyse(limit: 20)
 		(Game.totalAchievementsUnlocked, Game.statistics) = analyser.getStatistics()
+
+		Game.navigationController = NavigationController(withRoot: BundlesView())
 	}
 
 	static func goToMain() {

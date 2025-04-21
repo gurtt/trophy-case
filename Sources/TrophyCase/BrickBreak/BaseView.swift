@@ -35,6 +35,7 @@ final class BaseView: Navigable {
 		gameOverSprite.addToDisplayList()
 
 		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.bundles.isEmpty
+		exitMenuItem = canExitToMain ? System.addMenuItem(title: "exit game", callback: exit) : nil
 		guard !canExitToMain else {
 			dismissInterstitial()
 			return
@@ -95,6 +96,7 @@ final class BaseView: Navigable {
 		Game.saveData.saveScore(score: score)
 
 		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.bundles.isEmpty
+		exitMenuItem = canExitToMain ? System.addMenuItem(title: "exit game", callback: exit) : nil
 		gameOverSprite.primaryAction =
 			canExitToMain ? BaseView.instance!.exit : BaseView.instance!.startGame
 		gameOverSprite.secondaryAction = canExitToMain ? BaseView.instance!.startGame : {}
@@ -168,6 +170,10 @@ final class BaseView: Navigable {
 
 	func exit() {
 		// TODO: Deinitialise this view?
+		if exitMenuItem != nil {
+			System.removeMenuItem(exitMenuItem!)
+			exitMenuItem = nil
+		}
 		fadeSprite.fadeToOpaque()
 		state = .exiting
 	}
@@ -217,6 +223,8 @@ final class BaseView: Navigable {
 	private var lastBlockMoveTime = 0
 	private let msBetweenBlockMoves = 2000
 	private let msBetweenFastBlockMoves = 40
+
+	private var exitMenuItem: System.MenuItem? = nil
 
 	enum GameState {
 		case interstitial
