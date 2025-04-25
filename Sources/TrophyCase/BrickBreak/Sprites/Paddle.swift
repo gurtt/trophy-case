@@ -19,7 +19,11 @@ final class Paddle: Sprite.Sprite {
 	}
 
 	override func update() {
-		guard BaseView.instance?.state == .inGame else { return }
+		guard BaseView.instance?.state == .inGame else {
+			return
+		}
+
+		//print("updating paddle")
 
 		// TODO: Add menu option to change this
 		let paddleButtonVelocity: Float = 8

@@ -25,9 +25,9 @@ final class Dialog: Sprite.Sprite {
 	}
 
 	convenience init(
-		content: Graphics.Bitmap?, primaryAction: @escaping () -> Void = {},
-		primaryActionText: String = "OK", secondaryAction: @escaping () -> Void = {},
-		secondaryActionText: String?
+		content: Graphics.Bitmap?, primaryAction: @escaping () -> Void,
+		primaryActionText: String = "OK", secondaryAction: (() -> Void)? = nil,
+		secondaryActionText: String? = nil
 	) {
 		self.init()
 
@@ -42,7 +42,7 @@ final class Dialog: Sprite.Sprite {
 
 	var primaryAction: () -> Void = {}
 
-	var secondaryAction: () -> Void = {}
+	var secondaryAction: (() -> Void)? = nil
 
 	func show() {
 		transitionAnimationController.animate(to: .end)
@@ -57,7 +57,7 @@ final class Dialog: Sprite.Sprite {
 		transitionAnimationController.animate(to: .start)
 		// Very gross, but these cause strong ref cycles because weak references aren't allowed 😐
 		primaryAction = {}
-		secondaryAction = {}
+		secondaryAction = nil
 		selectedActionOutlineAnimationController.endCallback = {}
 	}
 
@@ -72,14 +72,14 @@ final class Dialog: Sprite.Sprite {
 			if primaryActionIsSelected {
 				primaryAction()
 			} else {
-				secondaryAction()
+				secondaryAction?()
 			}
 			Game.actionSfx.play()
 			dismiss()
 			return
 		}
 
-		if secondaryActionText != nil {
+		if secondaryAction != nil {
 			if primaryActionIsSelected && System.buttonState.pushed.contains(.left) {
 				Game.scrollDownSfx.play()
 				primaryActionIsSelected = false
@@ -134,13 +134,13 @@ final class Dialog: Sprite.Sprite {
 				wrap: .word, aligned: .center)
 		}
 
-		let hasSecondaryAction = secondaryActionText != nil
+		let hasSecondaryAction = secondaryAction != nil && secondaryActionText != nil
 		drawAction(
 			at: bounds.origin.translatedBy(dx: hasSecondaryAction ? 172 : 98, dy: 122),
 			text: primaryActionText, isSelected: primaryActionIsSelected)
-		if let secondaryActionText {
+		if hasSecondaryAction {
 			drawAction(
-				at: bounds.origin.translatedBy(dx: 27, dy: 122), text: secondaryActionText,
+				at: bounds.origin.translatedBy(dx: 27, dy: 122), text: secondaryActionText!,
 				isSelected: !primaryActionIsSelected)
 		}
 	}
@@ -150,8 +150,8 @@ final class Dialog: Sprite.Sprite {
 
 	// MARK: Private
 
-	private var primaryActionText: String = "OK"
-	private var secondaryActionText: String?
+	var primaryActionText: String = "OK"
+	var secondaryActionText: String?
 	private var primaryActionIsSelected = true
 	private var drawThickOutlines = false
 

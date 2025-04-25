@@ -102,7 +102,9 @@ final class BaseView: Navigable {
 		}
 		gameOverSprite.primaryAction =
 			canExitToMain ? BaseView.instance!.exit : BaseView.instance!.startGame
-		gameOverSprite.secondaryAction = canExitToMain ? BaseView.instance!.startGame : {}
+		gameOverSprite.primaryActionText = canExitToMain ? "Trophy Case" : "Play Again"
+		gameOverSprite.secondaryAction = canExitToMain ? BaseView.instance!.startGame : nil
+
 		Graphics.pushContext(gameOverSprite.content)
 		Graphics.clear(color: .white)
 		Graphics.drawMode = .copy
@@ -203,7 +205,7 @@ final class BaseView: Navigable {
 	}
 
 	// MARK: Private
-	private let interstitialSprite = Dialog(content: nil, secondaryActionText: nil)
+	private let interstitialSprite = Dialog(content: nil, primaryAction: {})
 	var state: GameState = .interstitial
 
 	private let backgroundSprite = Background()
@@ -220,7 +222,7 @@ final class BaseView: Navigable {
 	private let statusBarSprite = StatusBar()
 	private let warningSprite = Warning()
 	private let gameOverSprite = Dialog(
-		content: nil, primaryAction: {}, primaryActionText: "Trophy Case", secondaryAction: {},
+		content: nil, primaryAction: {}, primaryActionText: "Trophy Case", secondaryAction: nil,
 		secondaryActionText: "Play Again")
 	private let fadeSprite = Fade()
 	private var lastBlockMoveTime = 0

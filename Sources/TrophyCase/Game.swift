@@ -77,13 +77,7 @@ final class Game: PlaydateGame {
 
 		LaunchInfo.setup()
 
-		Game.updateBrickBreakBundle()
-
 		var analyser = Analyser()
-
-		if !Game.bundles.isEmpty {  // probably need to ingest the brick break bundle but this is bad
-			analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
-		}
 
 		var pathsWithData: [String] = []
 		do { pathsWithData = try findBundles() } catch {
@@ -108,6 +102,11 @@ final class Game: PlaydateGame {
 			Game.navigationController = NavigationController(withRoot: BaseView())
 			return
 		}
+		let didInsertBundle = Game.updateBrickBreakBundle()
+		if didInsertBundle {
+			analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
+		}
+
 		Game.analysisResults = analyser.analyse(limit: 20)
 		(Game.totalAchievementsUnlocked, Game.statistics) = analyser.getStatistics()
 
@@ -128,8 +127,9 @@ final class Game: PlaydateGame {
 		Game.navigationController = NavigationController(withRoot: BundlesView())
 	}
 
-	static func updateBrickBreakBundle() {
-		guard Game.saveData.hasPlayed else { return }
+	@discardableResult
+	static func updateBrickBreakBundle() -> Bool {
+		guard Game.saveData.hasPlayed else { return false }
 
 		let bundle = Bundle(
 			id: "dev.gurtt.trophycase.brickbreak",
@@ -146,10 +146,11 @@ final class Game: PlaydateGame {
 		guard let i = Game.bundles.firstIndex(where: { $0.id == "dev.gurtt.trophycase.brickbreak" })
 		else {
 			Game.bundles.append(bundle)
-			return
+			return true
 		}
 
 		Game.bundles[i] = bundle
+		return true
 	}
 
 	func update() -> Bool {
