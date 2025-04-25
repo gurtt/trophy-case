@@ -96,7 +96,10 @@ final class BaseView: Navigable {
 		Game.saveData.saveScore(score: score)
 
 		let canExitToMain = Game.saveData.hasUnlockedSomething || !Game.bundles.isEmpty
-		exitMenuItem = canExitToMain ? System.addMenuItem(title: "exit game", callback: exit) : nil
+
+		if exitMenuItem == nil {
+			exitMenuItem = canExitToMain ? System.addMenuItem(title: "exit game", callback: exit) : nil
+		}
 		gameOverSprite.primaryAction =
 			canExitToMain ? BaseView.instance!.exit : BaseView.instance!.startGame
 		gameOverSprite.secondaryAction = canExitToMain ? BaseView.instance!.startGame : {}
