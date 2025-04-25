@@ -100,7 +100,7 @@ final class Game: PlaydateGame {
 				}
 			}
 		}
-		guard !Game.bundles.isEmpty else {
+		guard !Game.bundles.isEmpty || Game.saveData.hasUnlockedSomething else {
 			Game.navigationController = NavigationController(withRoot: BaseView())
 			return
 		}
