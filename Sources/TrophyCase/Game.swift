@@ -10,7 +10,6 @@ final class Game: PlaydateGame {
 
 	static nonisolated(unsafe) var screenUpdateRequested: Bool = false
 
-	static nonisolated(unsafe) let lockImage = try! Graphics.Bitmap(path: "lock")
 	nonisolated(unsafe) static let defaultListIconImage = try! Graphics.Bitmap(
 		path: "default-icon")
 
