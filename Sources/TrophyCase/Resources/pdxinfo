@@ -1,7 +1,7 @@
 name=Trophy Case
 author=gurtt
-buildNumber=25
-version=1.0.0
+buildNumber=26
+version=1.1.0-beta.1
 description=View and share your achievements
 bundleID=dev.gurtt.trophycase
 imagePath=LauncherAssets
