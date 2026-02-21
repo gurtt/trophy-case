@@ -30,6 +30,22 @@ final class Game: PlaydateGame {
 	static nonisolated(unsafe) var statistics: [DisplayStatistic] = []
 	static nonisolated(unsafe) var totalAchievementsUnlocked: UInt = 0
 
+	// MARK: Loading state machine
+
+	enum LoadingState {
+		case listingDirectory
+		case checkingFiles(index: Int)
+		case decodingBundle(index: Int)
+		case analysing
+		case done
+	}
+
+	var loadingState: LoadingState = .listingDirectory
+	var loadingStartTime: UInt32 = 0
+	var directoryContents: [String] = []
+	var validPaths: [String] = []
+	var loadingAnalyser: Analyser = Analyser()
+
 	var isDrilledDown: Bool = false
 
 	var crankDelta: Float = 0
@@ -76,40 +92,8 @@ final class Game: PlaydateGame {
 
 		LaunchInfo.setup()
 
-		var analyser = Analyser()
-
-		var pathsWithData: [String] = []
-		do { pathsWithData = try findBundles() } catch {
-			log("Can't search for bundles: \(error)")
-		}
-		if !pathsWithData.isEmpty {
-			for path in pathsWithData {
-				do {
-					try Game.bundles.append(decodeBundle(at: path))
-
-					analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
-				} catch {
-					log("Can't decode bundle at \"\(path)\": \(error)")
-				}
-			}
-		}
-		guard !Game.bundles.isEmpty || Game.saveData.hasUnlockedSomething else {
-			Game.navigationController = NavigationController(withRoot: BaseView())
-			return
-		}
-		guard !System.buttonState.current.contains(.down) else {
-			Game.navigationController = NavigationController(withRoot: BaseView())
-			return
-		}
-		let didInsertBundle = Game.updateBrickBreakBundle()
-		if didInsertBundle {
-			analyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
-		}
-
-		Game.analysisResults = analyser.analyse(limit: 20)
-		(Game.totalAchievementsUnlocked, Game.statistics) = analyser.getStatistics()
-
-		Game.navigationController = NavigationController(withRoot: BundlesView())
+		Display.refreshRate = 0
+		loadingStartTime = System.currentTimeMilliseconds
 	}
 
 	static func goToMain() {
@@ -152,7 +136,112 @@ final class Game: PlaydateGame {
 		return true
 	}
 
+	// MARK: Loading
+
+	private func advanceLoading() {
+		switch loadingState {
+			case .listingDirectory:
+				do {
+					directoryContents = try contentsOfDirectory(atPath: "/Shared/Achievements/")
+				} catch {
+					log("Can't search for bundles: \(error)")
+					directoryContents = []
+				}
+				if directoryContents.isEmpty {
+					loadingState = .analysing
+				} else {
+					loadingState = .checkingFiles(index: 0)
+				}
+
+			case .checkingFiles(let index):
+				let path = directoryContents[index]
+				if fileExists(atPath: "/Shared/Achievements/" + path + "Achievements.json") {
+					validPaths.append(path)
+				}
+				let nextIndex = index + 1
+				if nextIndex < directoryContents.count {
+					loadingState = .checkingFiles(index: nextIndex)
+				} else if validPaths.isEmpty {
+					loadingState = .analysing
+				} else {
+					loadingState = .decodingBundle(index: 0)
+				}
+
+			case .decodingBundle(let index):
+				let path = validPaths[index]
+				do {
+					try Game.bundles.append(decodeBundle(at: path))
+					loadingAnalyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
+				} catch {
+					log("Can't decode bundle at \"\(path)\": \(error)")
+				}
+				let nextIndex = index + 1
+				if nextIndex < validPaths.count {
+					loadingState = .decodingBundle(index: nextIndex)
+				} else {
+					loadingState = .analysing
+				}
+
+			case .analysing:
+				finishLoading()
+
+			case .done:
+				break
+		}
+	}
+
+	private func finishLoading() {
+		guard !Game.bundles.isEmpty || Game.saveData.hasUnlockedSomething else {
+			Display.refreshRate = 30
+			Game.navigationController = NavigationController(withRoot: BaseView())
+			loadingState = .done
+			return
+		}
+		guard !System.buttonState.current.contains(.down) else {
+			Display.refreshRate = 30
+			Game.navigationController = NavigationController(withRoot: BaseView())
+			loadingState = .done
+			return
+		}
+
+		let didInsertBundle = Game.updateBrickBreakBundle()
+		if didInsertBundle {
+			loadingAnalyser.ingest(Game.bundles.last!, index: Game.bundles.count - 1)
+		}
+
+		Game.analysisResults = loadingAnalyser.analyse(limit: 20)
+		(Game.totalAchievementsUnlocked, Game.statistics) = loadingAnalyser.getStatistics()
+
+		Display.refreshRate = 30
+		Game.navigationController = NavigationController(withRoot: BundlesView())
+		loadingState = .done
+
+		directoryContents = []
+		validPaths = []
+		loadingAnalyser = Analyser()
+	}
+
+	private func drawLoadingScreen() {
+		Graphics.clear(color: .black)
+		let elapsed = System.currentTimeMilliseconds - loadingStartTime
+		guard elapsed >= 1500 else { return }
+
+		Graphics.drawMode = .inverted
+		Graphics.drawBitmap(
+			try! Graphics.Bitmap(path: "trophy-tiny-sherlock"), at: Point(x: 101, y: 150))
+		Graphics.drawText("Polishing trophies...", at: Point(x: 143, y: 157))
+		Graphics.drawMode = .copy
+	}
+
+	// MARK: Update
+
 	func update() -> Bool {
+		guard case .done = loadingState else {
+			advanceLoading()
+			drawLoadingScreen()
+			return true
+		}
+
 		Graphics.clearClipRects()
 		Game.screenUpdateRequested = false
 

@@ -16,7 +16,11 @@ if let path = Context.environment["PLAYDATE_SDK_PATH"] {
 let package = Package(
 	name: "TrophyCase", platforms: [.macOS(.v14)],
 	products: [.library(name: "TrophyCase", targets: ["TrophyCase"])],
-	dependencies: [.package(url: "https://github.com/finnvoor/PlaydateKit.git", branch: "main")],
+	dependencies: [
+		.package(
+			url: "https://github.com/finnvoor/PlaydateKit.git",
+			revision: "bb13db87f6c86e46c04064d77b01da6c4fa6ccac")
+	],
 	targets: [
 		.target(
 			name: "TrophyCase", dependencies: [.product(name: "PlaydateKit", package: "PlaydateKit")],
